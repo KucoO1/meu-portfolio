@@ -18,7 +18,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight"
+          className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight" // Aumentado para text-4xl no mobile
         >
           Olá, eu sou <span className="text-yellow-400">Nataniel Oliveira,</span><br />
           <motion.span
@@ -27,7 +27,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-yellow-400 block mt-2 text-2xl sm:text-3xl md:text-4xl"
+            className="text-yellow-400 block mt-2 text-3xl sm:text-4xl md:text-4xl" // Aumentado para text-3xl no mobile
           >
             {texts[textIndex]}
           </motion.span>
@@ -37,7 +37,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.7 }}
-          className="mt-4 text-base sm:text-xl"
+          className="mt-4 text-lg sm:text-xl" // Aumentado para text-lg no mobile
         >
           Desenvolvedor <span className="text-yellow-400">Fullstack</span> apaixonado por criar soluções digitais modernas e impactantes.
         </motion.p>
@@ -46,9 +46,9 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.7 }}
-          className="mt-4 leading-relaxed text-gray-400 text-sm sm:text-base"
+          className="mt-4 leading-relaxed text-gray-400 text-base sm:text-base" // Aumentado para text-base no mobile
         >
-          Com mais de 5 anos de experiência, especializo-me em criar aplicações web and mobile performáticas, escaláveis e com foco na experiência do usuário.
+          Com mais de 5 anos de experiência, especializo-me em criar aplicações web e mobile performáticas, escaláveis e com foco na experiência do usuário.
         </motion.p>
 
         <motion.div
@@ -70,9 +70,9 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8 }}
-        className="flex-shrink-0 order-1 md:order-2 relative group w-48 h-48 sm:w-80 sm:h-80 md:w-[420px] md:h-[500px]"
+        className="flex-shrink-0 order-1 md:order-2 relative group w-64 h-64 sm:w-80 sm:h-80 md:w-[420px] md:h-[500px]" // Aumentado para w-64 h-64 no mobile
       >
-        <div className={`absolute -inset-2 sm:-inset-4 bg-yellow-400/30 rounded-2xl blur-lg group-hover:bg-yellow-400/50 group-hover:blur-xl transition-all duration-300 ${darkMode ? 'opacity-30' : 'opacity-20'}`}></div>
+        <div className={`absolute -inset-3 sm:-inset-4 bg-yellow-400/30 rounded-2xl blur-lg group-hover:bg-yellow-400/50 group-hover:blur-xl transition-all duration-300 ${darkMode ? 'opacity-30' : 'opacity-20'}`}></div>
         <div className="relative w-full h-full rounded-2xl overflow-hidden border-4 border-yellow-400 shadow-xl group-hover:scale-105 transition-transform duration-300">
           <Image
             src="/images/nataniel.jpg"
