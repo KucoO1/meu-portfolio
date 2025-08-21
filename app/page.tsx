@@ -7,6 +7,8 @@ import HeroSection from "./components/HeroSection";
 import ProjectsSection from "./components/ProjectsSection";
 import SkillsSection from "./components/SkillsSection";
 import Footer from "./components/Footer";
+import AboutSection from "./components/AboutSection";
+import ContactSection from "./components/ContactSection";
 
 interface Project {
   title: string;
@@ -126,6 +128,11 @@ export default function Home() {
       <ProjectsSection darkMode={darkMode} projects={projects} />
       
       <SkillsSection darkMode={darkMode} />
+
+      <AboutSection darkMode={darkMode} />
+      
+      
+      <ContactSection darkMode={darkMode} /> 
       
       <Footer darkMode={darkMode} />
     </main>

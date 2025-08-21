@@ -13,9 +13,10 @@ interface HeaderProps {
 
 const navItems = [
   { name: "Início", href: "#hero" },
+  { name: "Sobre", href: "#sobre" }, 
   { name: "Projetos", href: "#projetos" },
   { name: "Skills", href: "#skills" },
-  { name: "Contato", href: "#contato" },
+  { name: "Contacto", href: "#contacto" },
 ];
 
 export default function Header({ 
