@@ -10,18 +10,53 @@ export default function Home() {
   const [textIndex, setTextIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  type FloatingElement = {
+    id: number;
+    size: number;
+    color: string;
+    top: string;
+    left: string;
+    duration: number;
+    direction: number;
+    delay: number;
+    borderRadius: string;
+  };
+  const [floatingElements, setFloatingElements] = useState<FloatingElement[]>([]);
   const texts = ["Programador", "Desenvolvedor Fullstack", "Criativo"];
   
-  // Verificar se é mobile
+  // Verificar se é mobile e inicializar elementos flutuantes
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
     };
     
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
+    // Inicializar elementos flutuantes apenas no cliente
+    if (typeof window !== 'undefined') {
+      const elements = Array.from({ length: 16 }).map((_, i) => ({
+        id: i,
+        size: window.innerWidth < 768 ? 20 + Math.random() * 50 : 35 + Math.random() * 90,
+        color: 
+          i % 4 === 0 ? "yellow-light" : 
+          i % 4 === 1 ? "yellow-medium" : 
+          i % 4 === 2 ? "blue" : "yellow-dark",
+        top: Math.random() * 90 + "%",
+        left: Math.random() * 90 + "%",
+        duration: 4 + Math.random() * 15,
+        direction: Math.random() > 0.5 ? 1 : -1,
+        delay: Math.random() * 2,
+        borderRadius: Math.random() > 0.7 ? "50%" : "30%",
+      }));
+      setFloatingElements(elements);
+      
+      checkIsMobile();
+      window.addEventListener('resize', checkIsMobile);
+    }
     
-    return () => window.removeEventListener('resize', checkIsMobile);
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', checkIsMobile);
+      }
+    };
   }, []);
   
   // Efeito de digitação
@@ -31,21 +66,6 @@ export default function Home() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
-
-  const floatingElements = Array.from({ length: 16 }).map((_, i) => ({
-    id: i,
-    size: window.innerWidth < 768 ? 20 + Math.random() * 50 : 35 + Math.random() * 90,
-    color: 
-      i % 4 === 0 ? "yellow-light" : 
-      i % 4 === 1 ? "yellow-medium" : 
-      i % 4 === 2 ? "blue" : "yellow-dark",
-    top: Math.random() * 90 + "%",
-    left: Math.random() * 90 + "%",
-    duration: 4 + Math.random() * 15,
-    direction: Math.random() > 0.5 ? 1 : -1,
-    delay: Math.random() * 2,
-    borderRadius: Math.random() > 0.7 ? "50%" : "30%",
-  }));
 
   // Dados de projetos (exemplo)
   const projects = [
