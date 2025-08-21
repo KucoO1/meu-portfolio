@@ -65,7 +65,7 @@ export default function Home() {
       setTextIndex((prev) => (prev + 1) % texts.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [texts.length]);
 
   // Dados de projetos (exemplo)
   const projects = [
