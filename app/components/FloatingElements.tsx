@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface FloatingElement {
   id: number;
@@ -20,9 +21,50 @@ interface FloatingElementsProps {
 }
 
 export default function FloatingElements({ elements, darkMode }: FloatingElementsProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+    };
+    
+    if (typeof window !== 'undefined') {
+      checkIsMobile();
+      window.addEventListener('resize', checkIsMobile);
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', checkIsMobile);
+      }
+    };
+  }, []);
+
+  // Aumentar número de bolhas no mobile - todas as bolhas + extras
+  const mobileElements = isMobile 
+    ? [
+        ...elements, // Todas as bolhas originais
+        // Bolhas extras para mobile
+        ...Array.from({ length: 8 }).map((_, i) => ({
+          id: elements.length + i,
+          size: 15 + Math.random() * 35, // Bolhas menores
+          color: 
+            i % 4 === 0 ? "yellow-light" : 
+            i % 4 === 1 ? "yellow-medium" : 
+            i % 4 === 2 ? "blue" : "yellow-dark",
+          top: Math.random() * 100 + "%",
+          left: Math.random() * 100 + "%",
+          duration: 5 + Math.random() * 12,
+          direction: Math.random() > 0.5 ? 1 : -1,
+          delay: Math.random() * 1.5,
+          borderRadius: Math.random() > 0.7 ? "50%" : "30%",
+        }))
+      ]
+    : elements;
+
   return (
-    <div className="block"> {/* Removi hidden sm:block - agora aparece em todos os dispositivos */}
-      {elements.map((el) => (
+    <div className="block">
+      {mobileElements.map((el) => (
         <motion.div
           key={el.id}
           className={`absolute ${
@@ -44,14 +86,14 @@ export default function FloatingElements({ elements, darkMode }: FloatingElement
           }}
           initial={{ opacity: 0 }}
           animate={{
-            y: [0, 12 * el.direction, 0],
-            x: [0, 8 * el.direction, 0],
+            y: [0, (isMobile ? 10 : 12) * el.direction, 0],
+            x: [0, (isMobile ? 6 : 8) * el.direction, 0],
             scale: [1, 1.05, 1],
             opacity: [0, 0.8, 0.6, 0],
             rotate: el.direction * (5 + Math.random() * 10),
           }}
           transition={{
-            duration: el.duration,
+            duration: isMobile ? el.duration * 1.2 : el.duration,
             delay: el.delay,
             repeat: Infinity,
             repeatType: "mirror",
