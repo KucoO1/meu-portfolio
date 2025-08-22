@@ -76,7 +76,7 @@ function SkillCard({ skill, index, darkMode }: { skill: Skill; index: number; da
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: index * 0.1 }}
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }} // Apenas margem inferior
       whileHover={{ scale: 1.03 }}
       className={`text-center p-4 sm:p-6 rounded-2xl shadow-lg transition-all ${darkMode ? 'bg-gray-800/30 hover:bg-gray-800/50' : 'bg-white/80 hover:bg-white'} border border-yellow-400/10 hover:border-yellow-400/30`}
     >
@@ -97,7 +97,7 @@ function SkillCard({ skill, index, darkMode }: { skill: Skill; index: number; da
           initial={{ width: 0 }}
           whileInView={{ width: `${skill.level}%` }}
           transition={{ duration: 1.2, ease: "easeOut", delay: index * 0.1 }}
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={{ once: true, margin: "0px 0px -30px 0px" }} // Margem inferior menor
           className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 shadow-lg"
         />
         <span className="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-bold text-gray-900">
