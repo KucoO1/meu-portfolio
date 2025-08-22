@@ -21,7 +21,7 @@ interface FloatingElementsProps {
 
 export default function FloatingElements({ elements, darkMode }: FloatingElementsProps) {
   return (
-    <div className="hidden sm:block">
+    <div className="block"> {/* Removi hidden sm:block - agora aparece em todos os dispositivos */}
       {elements.map((el) => (
         <motion.div
           key={el.id}
