@@ -58,12 +58,20 @@ export default function Home() {
       github: "#"
     },
     {
-      title: "Sistema de Agendamentos",
-      description: "Sistema para agendamento de serviços com confirmação por e-mail e SMS.",
-      technologies: ["Vue.js", "Express", "MySQL"],
+      title: "Gestão de Stock",
+      description: "Sistema para gestão de stock completo.",
+      technologies: ["Node.js + express", "Next.js", "MySQL"],
       image: "/images/project3.jpg",
-      link: "#",
-      github: "#"
+      link: "https://gestao-frontend-zeta.vercel.app/",
+      github: "https://github.com/KucoO1/gestao-de-stock"
+    },
+    {
+      title: "Landing Page",
+      description: "Página de conversão altamente persuasiva",
+      technologies: ["React"],
+      image: "/images/project3.jpg",
+      link: "https://landing-page-hotmart-nine.vercel.app/",
+      github: "https://github.com/KucoO1/landing-page-hotmart"
     }
   ];
 
