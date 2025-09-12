@@ -50,9 +50,9 @@ export default function Home() {
       github: "#"
     },
     {
-      title: "App de Gestão Financeira",
-      description: "Aplicativo para controle de finanças pessoais com relatórios e gráficos.",
-      technologies: ["React Native", "Firebase", "Chart.js"],
+      title: "Sistema de Gestão Financeira",
+      description: "Sistema para controle de finanças pessoais com relatórios",
+      technologies: ["React", "Node.js+express"],
       image: "/images/project2.jpg",
       link: "#",
       github: "#"
@@ -72,6 +72,14 @@ export default function Home() {
       image: "/images/project3.jpg",
       link: "https://landing-page-hotmart-nine.vercel.app/",
       github: "https://github.com/KucoO1/landing-page-hotmart"
+    },
+    {
+      title: "ArgPack",
+      description: "plataforma para facilitar a exportação de produtos na argentina ",
+      technologies: ["Next.js","Node.js","Firebase"],
+      image: "/images/project3.jpg",
+      link: "https://argpack-frontend.vercel.app/",
+      github: "https://github.com/KucoO1/argpack-frontend"
     }
   ];
 
