@@ -80,6 +80,14 @@ export default function Home() {
       image: "/images/project3.jpg",
       link: "https://argpack-frontend.vercel.app/",
       github: "https://github.com/KucoO1/argpack-frontend"
+    },
+    {
+      title: "Games Hub",
+      description: "Mini plataforma de jogos ",
+      technologies: ["React","Typescript"],
+      image: "/images/project3.jpg",
+      link: "https://jogo-memoria-e-mais.vercel.app/",
+      github: "https://github.com/KucoO1/jogo-memoria-e-mais"
     }
   ];
 
