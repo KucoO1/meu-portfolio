@@ -54,8 +54,8 @@ export default function Home() {
       description: "Sistema para controle de finanças pessoais com relatórios",
       technologies: ["React", "Node.js+express"],
       image: "/images/project2.jpg",
-      link: "#",
-      github: "#"
+      link: "https://financas-pessoais-frontend.vercel.app/",
+      github: "https://github.com/KucoO1/financas-pessoais-frontend"
     },
     {
       title: "Gestão de Stock",
