@@ -88,6 +88,14 @@ export default function Home() {
       image: "/images/project3.jpg",
       link: "https://jogo-memoria-e-mais.vercel.app/",
       github: "https://github.com/KucoO1/jogo-memoria-e-mais"
+    },
+    {
+      title: "PrimeFlix",
+      description: "Plataforma para ver os filmes que estão em alta e seus detalhes com o uso de uma api publica ",
+      technologies: ["React","axios"],
+      image: "/images/project3.jpg",
+      link: "https://primeflix-one-chi.vercel.app/",
+      github: "https://github.com/KucoO1/primeflix"
     }
   ];
 
