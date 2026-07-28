@@ -45,9 +45,9 @@ export default function Home() {
       title: "E-commerce Platform",
       description: "Plataforma completa de e-commerce com painel administrativo e integração com pagamentos.",
       technologies: ["Next.js", "Node.js", "MongoDB"],
-      image: "/images/project1.jpg",
-      link: "#",
-      github: "#"
+      image: "/images/ecommerce.jpg",
+      link: "https://ecommerce-five-lime-36.vercel.app/",
+      github: "https://github.com/KucoO1/ecommerce"
     },
     {
       title: "Sistema de Gestão Financeira",
@@ -96,6 +96,22 @@ export default function Home() {
       image: "/images/primeflix.jpg",
       link: "https://primeflix-one-chi.vercel.app/",
       github: "https://github.com/KucoO1/primeflix"
+    },
+    {
+      title: "Barbearia",
+      description: "Plataforma para fazer agendamentos em uma barbearia com painel administrativo e integração com pagamentos.",
+      technologies: ["Typescript", "Next.js"],
+      image: "/images/barbearia.jpg",
+      link: "https://barbearia-sepia-eight.vercel.app/",
+      github: "https://github.com/KucoO1/barbearia"
+    },
+    {
+      title: "Neoxia",
+      description: "Agencia de Marketing Digital, com o objetivo de fornecer soluções inovadoras e eficazes para empresas que desejam expandir sua presença online e alcançar seus objetivos de negócios.",
+      technologies: ["Typescript", "Next.js"],
+      image: "/images/Neoxia.jpg",
+      link: "https://neoxia.vercel.app/",
+      github: "https://github.com/KucoO1/Neoxia"
     }
   ];
 
