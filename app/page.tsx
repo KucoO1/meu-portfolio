@@ -50,6 +50,14 @@ export default function Home() {
       github: "https://github.com/KucoO1/ecommerce"
     },
     {
+      title: "Projeto orbita",
+      description: "Plataforma completa de e-commerce com painel administrativo e integração com pagamentos.",
+      technologies: ["Next.js", "Node.js", "MongoDB"],
+      image: "/images/orbita.jpg",
+      link: "https://orbita-mocha-nine.vercel.app/",
+      github: "https://github.com/KucoO1/orbita"
+    },
+    {
       title: "Sistema de Gestão Financeira",
       description: "Sistema para controle de finanças pessoais com relatórios",
       technologies: ["React", "Node.js+express"],
