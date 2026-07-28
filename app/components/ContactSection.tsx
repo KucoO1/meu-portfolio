@@ -49,7 +49,7 @@ export default function ContactSection({ darkMode }: ContactSectionProps) {
                 </div>
                 <div>
                   <p className="font-semibold">Email</p>
-                  <p className="text-gray-400">nataniel.oliveira@email.com</p>
+                  <p className="text-gray-400">natanieloliveiradev@gmail.com</p>
                 </div>
               </div>
               
@@ -59,7 +59,7 @@ export default function ContactSection({ darkMode }: ContactSectionProps) {
                 </div>
                 <div>
                   <p className="font-semibold">Telefone</p>
-                  <p className="text-gray-400">+351 912 345 678</p>
+                  <p className="text-gray-400">+244 948 142 984</p>
                 </div>
               </div>
               
@@ -69,7 +69,7 @@ export default function ContactSection({ darkMode }: ContactSectionProps) {
                 </div>
                 <div>
                   <p className="font-semibold">Localização</p>
-                  <p className="text-gray-400">Porto, Portugal</p>
+                  <p className="text-gray-400">Luanda, Angola</p>
                 </div>
               </div>
             </div>

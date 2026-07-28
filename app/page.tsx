@@ -53,7 +53,7 @@ export default function Home() {
       title: "Sistema de Gestão Financeira",
       description: "Sistema para controle de finanças pessoais com relatórios",
       technologies: ["React", "Node.js+express"],
-      image: "/images/project2.jpg",
+      image: "/images/gestao-financeira.jpg",
       link: "https://financas-pessoais-frontend.vercel.app/",
       github: "https://github.com/KucoO1/financas-pessoais-frontend"
     },
@@ -61,7 +61,7 @@ export default function Home() {
       title: "Gestão de Stock",
       description: "Sistema para gestão de stock completo.",
       technologies: ["Node.js + express", "Next.js", "MySQL"],
-      image: "/images/project3.jpg",
+      image: "/images/gestao-stock.jpg",
       link: "https://gestao-frontend-zeta.vercel.app/",
       github: "https://github.com/KucoO1/gestao-de-stock"
     },
@@ -69,7 +69,7 @@ export default function Home() {
       title: "Landing Page",
       description: "Página de conversão altamente persuasiva",
       technologies: ["React"],
-      image: "/images/project3.jpg",
+      image: "/images/landin-page.jpg",
       link: "https://landing-page-hotmart-nine.vercel.app/",
       github: "https://github.com/KucoO1/landing-page-hotmart"
     },
@@ -77,7 +77,7 @@ export default function Home() {
       title: "ArgPack",
       description: "plataforma para facilitar a exportação de produtos na argentina ",
       technologies: ["Next.js","Node.js","Firebase"],
-      image: "/images/project3.jpg",
+      image: "/images/argpack.jpg",
       link: "https://argpack-frontend.vercel.app/",
       github: "https://github.com/KucoO1/argpack-frontend"
     },
@@ -85,7 +85,7 @@ export default function Home() {
       title: "Games Hub",
       description: "Mini plataforma de jogos ",
       technologies: ["React","Typescript"],
-      image: "/images/project3.jpg",
+      image: "/images/gameshub.jpg",
       link: "https://jogo-memoria-e-mais.vercel.app/",
       github: "https://github.com/KucoO1/jogo-memoria-e-mais"
     },
@@ -93,7 +93,7 @@ export default function Home() {
       title: "PrimeFlix",
       description: "Plataforma para ver os filmes que estão em alta e seus detalhes com o uso de uma api publica ",
       technologies: ["React","axios"],
-      image: "/images/project3.jpg",
+      image: "/images/primeflix.jpg",
       link: "https://primeflix-one-chi.vercel.app/",
       github: "https://github.com/KucoO1/primeflix"
     }

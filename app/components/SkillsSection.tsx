@@ -16,13 +16,14 @@ interface SkillsSectionProps {
 const skills: Skill[] = [
   { name: "Next.js", level: 90, img: "/images/next-js-svgrepo-com (1).svg" },
   { name: "React.js", level: 95, img: "/images/reactjs.png" },
-  { name: "Node.js + Express", level: 85, img: "/images/node-js-svgrepo-com.svg" },
+  { name: "Node.js + Express", level: 95, img: "/images/node-js-svgrepo-com.svg" },
   { name: "HTML", level: 95, img: "/images/html-5-svgrepo-com.svg" },
   { name: "CSS", level: 90, img: "/images/css-3-svgrepo-com.svg" },
   { name: "C#", level: 80, img: "/images/csharp.svg" },
   { name: "MySQL", level: 85, img: "/images/database-svgrepo-com.svg" },
-  { name: "MongoDB", level: 75, img: "/images/mongodb-opened-svgrepo-com.svg" },
+  { name: "MongoDB", level: 90, img: "/images/mongodb-opened-svgrepo-com.svg" },
   { name: "Flutter", level: 70, img: "/images/flutter-svgrepo-com.svg" },
+  { name: "Typescript", level: 95, img: "/images/typescript.svg" },
 ];
 
 export default function SkillsSection({ darkMode }: SkillsSectionProps) {
