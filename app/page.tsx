@@ -42,7 +42,7 @@ export default function Home() {
   
   const projects: Project[] = [
     {
-      title: "E-commerce Platform",
+      title: "E-commerce",
       description: "Plataforma completa de e-commerce com painel administrativo e integração com pagamentos.",
       technologies: ["Next.js", "Node.js", "MongoDB"],
       image: "/images/ecommerce.jpg",
