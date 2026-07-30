@@ -24,6 +24,8 @@ const skills: Skill[] = [
   { name: "MongoDB", level: 90, img: "/images/mongodb-opened-svgrepo-com.svg" },
   { name: "Flutter", level: 70, img: "/images/flutter-svgrepo-com.svg" },
   { name: "Typescript", level: 95, img: "/images/typescript.svg" },
+  { name: "Docker", level: 80, img: "/images/social.svg" },
+  { name: "JavaScript", level: 90, img: "/images/js.svg" },
 ];
 
 export default function SkillsSection({ darkMode }: SkillsSectionProps) {

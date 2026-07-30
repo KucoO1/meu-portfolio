@@ -11,6 +11,7 @@ import AboutSection from "./components/AboutSection";
 import ContactSection from "./components/ContactSection";
 
 interface Project {
+  slug: string;
   title: string;
   description: string;
   technologies: string[];
@@ -41,15 +42,35 @@ export default function Home() {
   const texts = ["Programador", "Desenvolvedor Fullstack", "Criativo"];
   
   const projects: Project[] = [
+     {
+      slug: "qrcodepay",
+      title: "QrCodePay",
+      description: "Plataforma de pagamentos por QR Code para comerciantes, com onboarding por convite e painel administrativo completo. Backend não está publicado — inclui demo interativa.",
+      technologies: ["Next.js", "Node.js", "MongoDB", "Docker"],
+      image: "/images/projetos/qrcodepay/qrcodepay-1.png",
+      link: "/projetos/qrcodepay#demo",
+      github: ""
+    },
     {
+      slug: "crfdesk",
+      title: "CRFDesk",
+      description: "Plataforma de screening e compliance para ativos cripto, com scoring de risco explicável e relatórios prontos para reguladores. Backend não está publicado — inclui demo interativa.",
+      technologies: ["Next.js", "Node.js", "MongoDB", "Docker"],
+      image: "/images/projetos/crfdesk/crfdesk-2.png",
+      link: "/projetos/crfdesk#demo",
+      github: ""
+    },
+    {
+      slug: "ecommerce",
       title: "E-commerce",
-      description: "Plataforma completa de e-commerce com painel administrativo e integração com pagamentos.",
+      description: "Plataforma completa de e-commerce com painel administrativo.",
       technologies: ["Next.js", "Node.js", "MongoDB"],
       image: "/images/ecommerce.jpg",
       link: "https://ecommerce-five-lime-36.vercel.app/",
       github: "https://github.com/KucoO1/ecommerce"
     },
     {
+      slug: "orbital",
       title: "Projeto orbita",
       description: "Plataforma completa de e-commerce com painel administrativo e integração com pagamentos.",
       technologies: ["Next.js", "Node.js", "MongoDB"],
@@ -58,6 +79,7 @@ export default function Home() {
       github: "https://github.com/KucoO1/orbita"
     },
     {
+      slug: "gestao-financeira",
       title: "Sistema de Gestão Financeira",
       description: "Sistema para controle de finanças pessoais com relatórios",
       technologies: ["React", "Node.js+express"],
@@ -66,6 +88,16 @@ export default function Home() {
       github: "https://github.com/KucoO1/financas-pessoais-frontend"
     },
     {
+      slug: "neoxia",
+      title: "Neoxia",
+      description: "Agencia de Marketing Digital, com o objetivo de fornecer soluções inovadoras e eficazes para empresas que desejam expandir sua presença online e alcançar seus objetivos de negócios.",
+      technologies: ["Typescript", "Next.js"],
+      image: "/images/Neoxia.jpg",
+      link: "https://neoxia.vercel.app/",
+      github: "https://github.com/KucoO1/Neoxia"
+    },
+    {
+      slug: "gestao-stock",
       title: "Gestão de Stock",
       description: "Sistema para gestão de stock completo.",
       technologies: ["Node.js + express", "Next.js", "MySQL"],
@@ -74,6 +106,7 @@ export default function Home() {
       github: "https://github.com/KucoO1/gestao-de-stock"
     },
     {
+      slug: "landing-page",
       title: "Landing Page",
       description: "Página de conversão altamente persuasiva",
       technologies: ["React"],
@@ -82,6 +115,7 @@ export default function Home() {
       github: "https://github.com/KucoO1/landing-page-hotmart"
     },
     {
+      slug: "argpack",
       title: "ArgPack",
       description: "plataforma para facilitar a exportação de produtos na argentina ",
       technologies: ["Next.js","Node.js","Firebase"],
@@ -90,6 +124,7 @@ export default function Home() {
       github: "https://github.com/KucoO1/argpack-frontend"
     },
     {
+      slug: "games-hub",
       title: "Games Hub",
       description: "Mini plataforma de jogos ",
       technologies: ["React","Typescript"],
@@ -98,29 +133,24 @@ export default function Home() {
       github: "https://github.com/KucoO1/jogo-memoria-e-mais"
     },
     {
+      slug: "primeflix",
       title: "PrimeFlix",
       description: "Plataforma para ver os filmes que estão em alta e seus detalhes com o uso de uma api publica ",
       technologies: ["React","axios"],
-      image: "/images/primeflix.jpg",
+      image: "/images/primeFlix.jpg",
       link: "https://primeflix-one-chi.vercel.app/",
-      github: "https://github.com/KucoO1/primeflix"
+      github: "https://github.com/KucoO1/primeFlix"
     },
     {
+      slug: "barbearia",
       title: "Barbearia",
       description: "Plataforma para fazer agendamentos em uma barbearia com painel administrativo e integração com pagamentos.",
       technologies: ["Typescript", "Next.js"],
       image: "/images/barbearia.jpg",
       link: "https://barbearia-sepia-eight.vercel.app/",
       github: "https://github.com/KucoO1/barbearia"
-    },
-    {
-      title: "Neoxia",
-      description: "Agencia de Marketing Digital, com o objetivo de fornecer soluções inovadoras e eficazes para empresas que desejam expandir sua presença online e alcançar seus objetivos de negócios.",
-      technologies: ["Typescript", "Next.js"],
-      image: "/images/Neoxia.jpg",
-      link: "https://neoxia.vercel.app/",
-      github: "https://github.com/KucoO1/Neoxia"
     }
+   
   ];
 
   // Verificar se é mobile e inicializar elementos flutuantes

@@ -75,7 +75,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
         <div className={`absolute -inset-3 sm:-inset-4 bg-yellow-400/30 rounded-2xl blur-lg group-hover:bg-yellow-400/50 group-hover:blur-xl transition-all duration-300 ${darkMode ? 'opacity-30' : 'opacity-20'}`}></div>
         <div className="relative w-full h-full rounded-2xl overflow-hidden border-4 border-yellow-400 shadow-xl group-hover:scale-105 transition-transform duration-300">
           <Image
-            src="/images/nataniel.jpg"
+            src="/images/nataniel2.jpeg"
             alt="Foto de perfil de Nataniel Oliveira"
             fill
             className="object-cover"

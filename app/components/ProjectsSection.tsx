@@ -1,10 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink, Github } from "lucide-react";
+import { ExternalLink, Github, FileText } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Project {
+  slug: string;
   title: string;
   description: string;
   technologies: string[];
@@ -77,7 +79,7 @@ function ProjectCard({
           darkMode ? "bg-gray-900" : "bg-white"
         } transition-all duration-300`}
       >
-        <div className="relative h-40 sm:h-48 mb-4 overflow-hidden rounded-xl">
+        <Link href={`/projetos/${project.slug}`} className="block relative h-40 sm:h-48 mb-4 overflow-hidden rounded-xl">
           <Image
             src={project.image}
             alt={project.title}
@@ -96,7 +98,7 @@ function ProjectCard({
           <div className="absolute bottom-4 left-0 right-0 z-20 text-center px-4">
             <h3 className="text-xl font-semibold text-white">{project.title}</h3>
           </div>
-        </div>
+        </Link>
 
         <p className="mb-4 text-left text-sm sm:text-base">{project.description}</p>
 
@@ -111,7 +113,7 @@ function ProjectCard({
           ))}
         </div>
 
-        <div className="flex justify-between text-xs sm:text-sm">
+        <div className="flex flex-wrap justify-between gap-3 text-xs sm:text-sm mb-4">
           <a
             href={project.link}
             target="_blank"
@@ -121,16 +123,26 @@ function ProjectCard({
             <ExternalLink size={14} />
             Ver projeto
           </a>
-          <a
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 sm:gap-2 hover:text-yellow-400 transition-colors"
-          >
-            <Github size={14} />
-            Código
-          </a>
+          {project.github && (
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 sm:gap-2 hover:text-yellow-400 transition-colors"
+            >
+              <Github size={14} />
+              Código
+            </a>
+          )}
         </div>
+
+        <Link
+          href={`/projetos/${project.slug}`}
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-yellow-400/10 text-yellow-400 text-xs sm:text-sm font-medium hover:bg-yellow-400/20 transition-colors"
+        >
+          <FileText size={14} />
+          Detalhes técnicos do projeto
+        </Link>
       </div>
     </motion.div>
   );
