@@ -7,10 +7,12 @@ import Link from "next/link";
 import type { ProjectData } from "../data/projects";
 import QrCodePayDemo from "./demos/QrCodePayDemo";
 import CrfDeskDemo from "./demos/CrfDeskDemo";
+import BoardGovDemo from "./demos/BoardGovDemo";
 
 const DEMO_COMPONENTS: Record<string, React.ComponentType> = {
   qrcodepay: QrCodePayDemo,
   crfdesk: CrfDeskDemo,
+  "boardgov-ao": BoardGovDemo,
 };
 
 export default function ProjectDetail({ project }: { project: ProjectData }) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ExternalLink, Github, FileText } from "lucide-react";
+import { ExternalLink, Github, FileText, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,6 +13,7 @@ interface Project {
   image: string;
   link: string;
   github: string;
+  featured?: boolean;
 }
 
 interface ProjectsSectionProps {
@@ -72,7 +73,7 @@ function ProjectCard({
       whileHover={{ y: -10 }}
       className={`p-1 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-600 group cursor-pointer ${
         darkMode ? "" : "shadow-lg"
-      }`}
+      } ${project.featured ? "shadow-[0_0_30px_-6px_rgba(251,191,36,0.55)]" : ""}`}
     >
       <div
         className={`p-4 sm:p-6 rounded-2xl h-full ${
@@ -95,6 +96,12 @@ function ProjectCard({
                 : "from-yellow-200/30 to-amber-300/30"
             } z-0`}
           ></div>
+          {project.featured && (
+            <div className="absolute top-3 left-3 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-yellow-400 to-amber-600 text-gray-950 text-[10px] sm:text-xs font-bold uppercase tracking-wide shadow-lg">
+              <Star size={11} className="fill-gray-950" />
+              Destaque
+            </div>
+          )}
           <div className="absolute bottom-4 left-0 right-0 z-20 text-center px-4">
             <h3 className="text-xl font-semibold text-white">{project.title}</h3>
           </div>

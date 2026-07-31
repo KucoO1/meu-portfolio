@@ -18,6 +18,7 @@ interface Project {
   image: string;
   link: string;
   github: string;
+  featured?: boolean;
 }
 
 interface FloatingElement {
@@ -43,13 +44,14 @@ export default function Home() {
   
   const projects: Project[] = [
      {
-      slug: "qrcodepay",
-      title: "QrCodePay",
-      description: "Plataforma de pagamentos por QR Code para comerciantes, com onboarding por convite e painel administrativo completo. Backend não está publicado — inclui demo interativa.",
-      technologies: ["Next.js", "Node.js", "MongoDB", "Docker"],
-      image: "/images/projetos/qrcodepay/qrcodepay-1.png",
-      link: "/projetos/qrcodepay#demo",
-      github: ""
+      slug: "boardgov-ao",
+      title: "BoardGov AO",
+      description: "Plataforma multi-tenant de governança corporativa para conselhos de administração angolanos: reuniões, quórum, votações, atas e conformidade BNA. Backend não está publicado — inclui demo interativa.",
+      technologies: ["Next.js", "NestJS", "PostgreSQL", "Docker"],
+      image: "/images/boardgov.jpg",
+      link: "/projetos/boardgov-ao#demo",
+      github: "",
+      featured: true
     },
     {
       slug: "crfdesk",
@@ -58,6 +60,16 @@ export default function Home() {
       technologies: ["Next.js", "Node.js", "MongoDB", "Docker"],
       image: "/images/projetos/crfdesk/crfdesk-2.png",
       link: "/projetos/crfdesk#demo",
+      github: "",
+      featured: true
+    },
+    {
+      slug: "qrcodepay",
+      title: "QrCodePay",
+      description: "Plataforma de pagamentos por QR Code para comerciantes, com onboarding por convite e painel administrativo completo. Backend não está publicado — inclui demo interativa.",
+      technologies: ["Next.js", "Node.js", "MongoDB", "Docker"],
+      image: "/images/projetos/qrcodepay/qrcodepay-1.png",
+      link: "/projetos/qrcodepay#demo",
       github: ""
     },
     {

@@ -999,6 +999,158 @@ export const projects: ProjectData[] = [
       "Aplicar limites de plano antes de operações caras, e não depois, poupa recursos e evita frustração do utilizador",
     ],
   },
+
+  // 13. BOARDGOV AO
+  {
+    slug: "boardgov-ao",
+    title: "BoardGov AO",
+    tagline: "Plataforma multi-tenant de governança corporativa para conselhos de administração angolanos, com reuniões, votações e actas juridicamente defensáveis",
+    technologies: ["Next.js", "NestJS", "PostgreSQL", "Prisma", "Docker"],
+    image: "/images/boardgov.jpg",
+    gallery: [
+      "/images/projetos/boardgov/boardgov-1.jpg",
+      "/images/projetos/boardgov/boardgov-2.jpg",
+      "/images/projetos/boardgov/boardgov-3.jpg",
+      "/images/projetos/boardgov/boardgov-4.jpg",
+      "/images/projetos/boardgov/boardgov-5.jpg",
+      "/images/projetos/boardgov/boardgov-6.jpg",
+      "/images/projetos/boardgov/boardgov-7.jpg",
+      "/images/projetos/boardgov/boardgov-8.jpg",
+      "/images/projetos/boardgov/boardgov-9.jpg",
+      "/images/projetos/boardgov/boardgov-10.jpg",
+      "/images/projetos/boardgov/boardgov-11.jpg",
+      "/images/projetos/boardgov/boardgov-12.jpg",
+      "/images/projetos/boardgov/boardgov-13.jpg",
+      "/images/projetos/boardgov/boardgov-14.jpg",
+      "/images/projetos/boardgov/boardgov-15.jpg",
+      "/images/projetos/boardgov/boardgov-16.jpg",
+      "/images/projetos/boardgov/boardgov-17.jpg",
+      "/images/projetos/boardgov/boardgov-18.jpg",
+      "/images/projetos/boardgov/boardgov-19.jpg",
+      "/images/projetos/boardgov/boardgov-20.jpg",
+      "/images/projetos/boardgov/boardgov-21.jpg",
+      "/images/projetos/boardgov/boardgov-22.jpg",
+      "/images/projetos/boardgov/boardgov-23.jpg",
+      "/images/projetos/boardgov/boardgov-24.jpg",
+      "/images/projetos/boardgov/boardgov-25.jpg",
+      "/images/projetos/boardgov/boardgov-26.jpg",
+      "/images/projetos/boardgov/boardgov-27.jpg",
+      "/images/projetos/boardgov/boardgov-28.jpg",
+      "/images/projetos/boardgov/boardgov-29.jpg",
+      "/images/projetos/boardgov/boardgov-30.jpg",
+    ],
+    link: "/projetos/boardgov-ao#demo",
+    github: "",
+    hasLiveBackend: false,
+    overview:
+      "BoardGov AO é uma plataforma de governança corporativa multi-tenant construída para conselhos de administração de organizações angolanas — bancos, seguradoras, correctoras e empresas públicas sujeitas a supervisão do BNA, da CMC ou de outras tutelas. Digitaliza todo o ciclo de vida de um conselho: convocatória de reuniões com cálculo automático de quórum, votação em tempo real e resoluções circulares assíncronas, redacção e aprovação de actas segundo a estrutura legal da Lei 1/04, sala de dados confidencial com marca de água dinâmica, declarações anuais de interesses, registo de conflitos, comités especializados, biblioteca pesquisável de precedentes, acesso de emergência auditado, portal temporário para auditores externos e um assistente de IA que gera rascunhos de actas e resume documentos. Existe ainda um painel de super administração separado, para gerir todas as organizações-cliente da plataforma, utilizadores, feature flags por módulo e saúde do sistema.",
+    problem:
+      "Em Angola, a governação de um conselho de administração ainda acontece maioritariamente em papel e em ficheiros soltos: convocatórias por email sem registo formal, actas escritas depois da reunião em Word, votações que ninguém consegue provar que aconteceram exactamente como descrito, e declarações de conflito de interesse arquivadas numa pasta que raramente alguém revê. Quando chega uma inspecção do BNA ou uma auditoria externa, reconstruir esse histórico é lento e frágil. O desafio deste projecto foi construir uma plataforma onde cada acto de governança — um voto, uma acta aprovada, um acesso a um documento confidencial — fica registado de uma forma que resiste a escrutínio, sem tornar o dia a dia do conselho mais burocrático do que já é.",
+    stack: [
+      { label: "Frontend", items: ["Next.js 16 (App Router)", "React 19", "TypeScript", "Tailwind CSS 4", "Radix UI (dialog, tabs, tooltip, select)"] },
+      { label: "Backend", items: ["NestJS 11", "TypeScript", "Passport + JWT (access/refresh)", "Speakeasy (2FA / TOTP)", "PDFKit para relatórios", "Winston (logging estruturado)", "@anthropic-ai/sdk (assistente de IA)"] },
+      { label: "Base de dados", items: ["PostgreSQL", "Prisma ORM", "Row-Level Security nativa do Postgres para isolamento multi-tenant", "Migrations versionadas"] },
+      { label: "Infraestrutura", items: ["Docker + workspaces (api / web / database / shared)", "AWS S3 (documentos)", "AWS SES (emails)", "Redis / ioredis (blacklist de tokens, filas)", "Scheduler (@nestjs/schedule) para tarefas diárias"] },
+    ],
+    architecture: [
+      {
+        title: "Isolamento multi-tenant reforçado ao nível da base de dados, não só na aplicação",
+        content:
+          "Além do filtro habitual por organizationId nos services, o Postgres tem Row-Level Security activada em todas as tabelas sensíveis: no início de cada transacção a aplicação define SET LOCAL app.current_organisation_id, e uma política RLS filtra automaticamente qualquer SELECT, INSERT ou UPDATE com base nesse valor — de forma transparente para o Prisma. Isto significa que, mesmo que um bug na camada de aplicação se esqueça de filtrar por organização, a base de dados continua a impedir o acesso cruzado entre clientes. Existe um bypass explícito (app.bypass_rls) apenas para migrations e seeds.",
+      },
+      {
+        title: "Máquina de estados explícita para o ciclo de vida de uma reunião",
+        content:
+          "Uma reunião só pode transitar entre estados (DRAFT → CONVENED → IN_PROGRESS → COMPLETED, ou CANCELLED a partir de DRAFT/CONVENED) através de um mapa de transições válidas verificado antes de qualquer mudança de estado — qualquer tentativa de saltar directamente de rascunho para reunião concluída é rejeitada. O quórum é calculado automaticamente no momento em que a reunião arranca (achievedPercent face ao quorumPercent definido pela organização ou pela própria reunião), e essa percentagem fica registada no evento de início, não recalculada a posteriori.",
+      },
+      {
+        title: "Votos com hash de integridade, imutáveis por desenho",
+        content:
+          "Cada voto (ballot) gera um hash SHA-256 sobre o id da votação, o membro, o valor votado e o instante exacto do voto. Depois de submetido, um ballot não pode ser alterado nem apagado, e uma constraint única na base de dados impede que o mesmo membro vote duas vezes na mesma votação. Depois de fechada, uma votação deixa de aceitar novos ballots. Abstenções por conflito de interesse (CONFLICT_ABSTENTION) são registadas mas excluídas do cálculo de maioria — o resultado é sempre uma comparação simples entre votos a favor e contra dos membros sem conflito.",
+      },
+      {
+        title: "Actas com fluxo legal e reaproveitamento de arquitectura para resoluções circulares",
+        content:
+          "As actas seguem DRAFT → UNDER_REVIEW → APPROVED: em rascunho o Secretário edita livremente, em revisão só ele pode fazer correcções enquanto os membros leem, e uma vez aprovada na reunião seguinte a acta torna-se imutável. O conteúdo inicial é gerado automaticamente com a estrutura exigida pela Lei 1/04 (presenças, ordem do dia, deliberações). As resoluções circulares — votações assíncronas fora de uma reunião presencial — não têm um módulo à parte: reaproveitam a mesma arquitectura de Votes com mode=ASYNC e uma reunião virtual do tipo CIRCULAR_RESOLUTION, evitando duplicar toda a lógica de imutabilidade já validada.",
+      },
+      {
+        title: "RBAC em duas camadas independentes: papel na organização e papel na plataforma",
+        content:
+          "Um utilizador tem um papel dentro do conselho (PRESIDENT, BOARD_MEMBER, SECRETARY, GUEST, definido em BoardMemberRole) completamente separado do seu eventual papel como administrador da plataforma (AdminRole, usado só no painel de super administração multi-organização). Misturar estas duas dimensões foi identificado cedo como fonte de bugs de autorização — por isso nunca partilham o mesmo enum nem o mesmo guard, mesmo quando a mesma pessoa acumula os dois papéis.",
+      },
+    ],
+    backend: [
+      {
+        title: "Marca de água dinâmica sem tocar no ficheiro original",
+        content:
+          "Ao visualizar um PDF confidencial, o backend descarrega o ficheiro do bucket privado no S3, aplica uma marca de água com o nome do membro e a data/hora exacta usando pdf-lib, faz upload do resultado para um bucket temporário e devolve um presigned URL válido por 15 minutos. O documento original nunca é alterado — cada visualização gera a sua própria cópia marcada, rastreável a quem a pediu.",
+      },
+      {
+        title: "Sala de Dados Virtual (VDR) com permissões granulares e log imutável",
+        content:
+          "Documentos especialmente confidenciais podem viver numa VdrRoom isolada, com permissões definidas membro a membro (ver / descarregar / imprimir) e expiração automática. Cada acesso — visualização, download ou impressão — fica registado num log que não pode ser editado, o que transforma a sala de dados numa peça central de qualquer auditoria posterior.",
+      },
+      {
+        title: "\"Nunca bloquear numa emergência, sempre auditar\"",
+        content:
+          "O acesso de emergência é o único fluxo da plataforma desenhado para não ter fricção: apenas Presidente e Secretário o podem solicitar, mas quando o fazem o acesso é concedido de imediato, por no máximo 8 horas. Em troca, todos os outros Presidentes e Secretários são notificados no momento, e cada acção realizada durante esse acesso — IP, user-agent, documentos abertos — fica gravada de forma imutável, podendo ser sinalizada para investigação depois.",
+      },
+      {
+        title: "Portal de auditores externos com sessão temporária e revogação imediata",
+        content:
+          "O Secretário gera um acesso para um auditor externo (BNA, CMC, revisor de contas), que recebe um token único (UUID v4 + HMAC) por email. Ao aceder, o auditor obtém uma sessão JWT válida por 4 horas, navega numa interface só de leitura com watermark automático em qualquer PDF, e cada consulta fica registada. O Secretário pode revogar o acesso a qualquer momento — o token é invalidado de imediato através de uma blacklist em Redis, sem esperar pela expiração natural.",
+      },
+      {
+        title: "Relatórios de conformidade gerados a partir dos mesmos dados de governança",
+        content:
+          "Em vez de manter um formato de exportação por tutela, os relatórios para BNA, CMC, ARSEG ou MINFIN partilham a mesma base de dados (composição do conselho, actividade de reuniões, deliberações, conflitos, audit log) e só divergem na formatação final — o que permite adicionar uma nova tutela sem replicar lógica de negócio.",
+      },
+      {
+        title: "Assistente de IA como camada fina sobre dados reais da organização",
+        content:
+          "O módulo de IA integra a API da Anthropic para quatro tarefas concretas — rascunho de acta a partir da agenda e decisões da reunião, resumo de um documento, deteção de riscos legais/financeiros num documento e sugestão de pontos de agenda com base no histórico da organização. Cada chamada regista os tokens consumidos, para controlo de custo por organização.",
+      },
+    ],
+    features: [
+      "Convocatória de reuniões com cálculo automático de quórum",
+      "Votação em tempo real e resoluções circulares assíncronas",
+      "Actas com fluxo legal de rascunho, revisão e aprovação (Lei 1/04)",
+      "Sala de Dados Virtual (VDR) com marca de água dinâmica e log de acessos",
+      "Conselho de Administração: membros, mandatos, papéis e comités especializados",
+      "Declarações anuais de interesses e registo de conflitos, alinhados com o BNA",
+      "Biblioteca de precedentes com indexação automática a partir de actas aprovadas",
+      "Acesso de emergência auditado para Presidente e Secretário",
+      "Portal temporário e revogável para auditores externos",
+      "Mensagens seguras encriptadas entre membros do conselho",
+      "Assistente de IA para actas, resumos, riscos e sugestão de agenda",
+      "Exportação de relatórios (PDF, CSV, JSON), incluindo relatório BNA/Ministério",
+      "Painel de super administração multi-organização, com feature flags por módulo",
+      "Autenticação de dois factores (TOTP) e audit log completo",
+    ],
+    challenges: [
+      {
+        title: "Garantir isolamento entre organizações mesmo perante um erro de programação",
+        content:
+          "Resolvido com Row-Level Security directamente no Postgres, como segunda linha de defesa depois do filtro aplicacional — a base de dados nunca devolve dados de outra organização, independentemente de um service se esquecer de filtrar por organizationId.",
+      },
+      {
+        title: "Fazer com que um voto ou uma acta aprovada nunca possam ser questionados como adulterados",
+        content:
+          "Resolvido com hash de integridade por voto, constraint de unicidade contra voto duplicado, votações fechadas que recusam novos ballots, e actas que passam a ser imutáveis assim que aprovadas — cada peça pensada para sustentar-se como prova perante um regulador.",
+      },
+      {
+        title: "Suportar um acesso de emergência sem abrir uma brecha de segurança nem travar uma crise real",
+        content:
+          "Resolvido invertendo a lógica habitual: em vez de bloquear e pedir aprovação, o acesso é concedido de imediato a papéis restritos (Presidente/Secretário), com limite de tempo curto, notificação instantânea a todos os responsáveis e um registo imutável de tudo o que foi acedido durante a janela de emergência.",
+      },
+    ],
+    learnings: [
+      "Row-Level Security ao nível da base de dados é uma rede de segurança que sobrevive a bugs futuros na camada de aplicação — vale a pena mesmo quando o filtro aplicacional já existe",
+      "Reaproveitar uma arquitectura já validada (Votes) para um caso de uso novo (resoluções circulares) é mais seguro do que construir um módulo paralelo com a sua própria lógica de imutabilidade",
+      "Separar por completo o papel de alguém na organização do seu papel na plataforma evita uma classe inteira de bugs de autorização que só aparecem quando a mesma pessoa acumula os dois",
+      "Desenhar desde o início para conformidade regulatória (Lei 1/04, relatórios BNA) poupa retrabalho grande quando chega a altura de gerar esses relatórios, porque os dados já nascem na forma certa",
+    ],
+  },
 ];
 
 export function getProjectBySlug(slug: string): ProjectData | undefined {
