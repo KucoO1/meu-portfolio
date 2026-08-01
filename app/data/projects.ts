@@ -423,69 +423,75 @@ export const projects: ProjectData[] = [
   {
     slug: "argpack",
     title: "ArgPack",
-    tagline: "Plataforma que liga exportadores argentinos a compradores internacionais",
-    technologies: ["Next.js", "Node.js", "Firebase"],
+    tagline: "Marketplace que liga produtores argentinos a afiliados que vendem os seus produtos no Brasil",
+    technologies: ["Next.js", "Node.js", "Express", "MongoDB"],
     image: "/images/argpack.jpg",
     gallery: [],
-    link: "https://argpack-frontend.vercel.app/",
+    link: "/projetos/argpack#demo",
     github: "https://github.com/KucoO1/argpack-frontend",
     hasLiveBackend: false,
     overview:
-      "Plataforma pensada para facilitar a exportação de produtos argentinos para mercados internacionais, conectando pequenos e médios produtores/exportadores a compradores fora da Argentina. A ideia central é reduzir a fricção documental e comercial que normalmente afasta um pequeno exportador do comércio internacional: catálogo de produtos exportáveis, pedidos de cotação e comunicação direta entre as partes.",
+      "Marketplace de microexportação que liga pequenos produtores argentinos (vinhos, alimentos, artesanato, couro) a afiliados brasileiros que promovem e vendem esses produtos através de um link de referência próprio, ganhando comissão por cada venda confirmada. A plataforma tem três perfis: o produtor, que gere o seu catálogo e as suas vendas; o afiliado, que gera links de produtos e acompanha ganhos e tier de comissão; e o admin, que supervisiona toda a operação.",
     problem:
-      "Pequenos exportadores raramente têm presença digital própria nem know-how para lidar com pedidos internacionais (cotações, incoterms, documentação). Grandes marketplaces B2B (Alibaba, Global Sources) são desenhados para a escala asiática e não refletem a realidade de um produtor argentino de médio porte. O ArgPack propõe-se a ser esse ponto de encontro mais simples e direto.",
+      "Um pequeno produtor argentino raramente tem equipa de vendas ou marketing digital próprio para chegar ao mercado brasileiro, e um afiliado que quer promover produtos físicos de nicho não tem uma forma simples de gerar links rastreáveis e ser pago de forma transparente por isso. O ArgPack resolve os dois lados ao mesmo tempo: dá catálogo e vitrine ao produtor, e dá um sistema de referência com comissão automática ao afiliado.",
     stack: [
-      { label: "Frontend", items: ["Next.js (App Router)", "TypeScript", "Tailwind CSS"] },
-      { label: "Backend", items: ["Firebase Cloud Functions (Node.js)", "Firebase Authentication (papéis: exportador, comprador, admin)"] },
-      { label: "Base de dados", items: ["Cloud Firestore (NoSQL, tempo real)", "Firebase Storage para documentos/imagens de produto"] },
-      { label: "Infraestrutura", items: ["Vercel (frontend)", "Firebase Hosting/Functions (backend)"] },
+      { label: "Frontend", items: ["Next.js (App Router)", "TypeScript", "Tailwind CSS", "Context API (carrinho, wishlist, autenticação)"] },
+      { label: "Backend", items: ["Node.js + Express + TypeScript", "JWT (jsonwebtoken) para autenticação", "Zod para validação de payloads", "Helmet + CORS + Morgan"] },
+      { label: "Base de dados", items: ["MongoDB + Mongoose", "Modelos: User, Producer, Affiliate, Product, Sale, Order"] },
+      { label: "Infraestrutura", items: ["Vercel (frontend)", "API REST separada (backend Node)"] },
     ],
     architecture: [
       {
-        title: "Firebase como backend serverless — velocidade de execução sobre uma marketplace B2B",
+        title: "Três papéis, um único modelo de utilizador",
         content:
-          "Para uma plataforma que liga duas partes (exportador e comprador) com necessidade de atualizações em tempo real — por exemplo, o estado de um pedido de cotação a mudar — o Firestore oferece subscrições em tempo real \"de fábrica\", sem necessidade de construir websockets manualmente. A escolha por Firebase em vez de um backend Node.js tradicional com MongoDB/Postgres foi deliberada: para o volume esperado (uma marketplace de nicho, não um e-commerce de massa), o custo de operação e a velocidade de desenvolvimento do Firebase compensam a menor flexibilidade de queries complexas.",
+          "Existe uma coleção User única com um campo userType (affiliate | producer | admin), e cada papel tem depois um documento de perfil próprio (Producer ou Affiliate) ligado por userId. Isto evita duplicar lógica de autenticação para cada tipo de conta e mantém o JWT genérico — o middleware de autorização decide o que cada papel pode ver a partir de um único campo.",
       },
       {
-        title: "Regras de segurança do Firestore como camada de autorização",
+        title: "Comissão por afiliado calculada no servidor, nunca confiada ao cliente",
         content:
-          "Em vez de um middleware de backend tradicional a verificar permissões, a autorização vive nas Firestore Security Rules: um comprador só pode ler os seus próprios pedidos de cotação, um exportador só pode editar os seus próprios produtos, e apenas contas com custom claim role=admin podem moderar o catálogo. Isto move a responsabilidade de segurança para a camada de dados, reduzindo a superfície de ataque de uma API REST tradicional.",
+          "Cada afiliado tem um referralCode único e um tier (Bronze 5%, Prata 10% com 10+ vendas no mês, Ouro 15% com 50+ vendas no mês). Quando uma venda é registada com um código de referência, o backend resolve o afiliado dono do código, calcula a comissão a partir da tabela de tiers (nunca a partir de um valor enviado pelo cliente) e recalcula o tier do afiliado a cada venda confirmada.",
       },
       {
-        title: "Cloud Functions para lógica que não pode viver no cliente",
+        title: "Sale como registo por linha de produto, Order como o pedido completo",
         content:
-          "Ações sensíveis — como notificar um exportador por email quando recebe um pedido de cotação, ou validar que um produto tem toda a documentação de exportação antes de ser publicado — correm em Cloud Functions acionadas por triggers do Firestore (onCreate/onUpdate), nunca confiando que o cliente vai executar essa lógica corretamente.",
+          "Um checkout pode ter vários produtos de vários produtores diferentes. Em vez de guardar tudo dentro do Order, cada linha de produto gera o seu próprio documento Sale (com o producerId, o afiliado atribuído e a comissão já calculada), enquanto o Order guarda os dados do pedido em si — morada de entrega, forma de pagamento, cupão aplicado. Isto permite que cada produtor veja apenas as suas próprias vendas sem expor o pedido completo de outro produtor.",
       },
     ],
     backend: [
       {
-        title: "Modelo de dados: produtos, cotações e perfis de exportador",
+        title: "Modelo de dados: produtores, produtos, afiliados e vendas",
         content:
-          "Coleções principais no Firestore: products (com país de origem, categoria, certificações), quoteRequests (comprador, exportador, produto, quantidade, estado), e exporterProfiles (dados da empresa, documentação de exportação). Cada pedido de cotação é um documento próprio, permitindo consultas em tempo real do estado do pedido em ambos os lados sem polling.",
+          "Producer guarda os dados da empresa (nome, tipo de produto, localização, plano). Product pertence a um Producer e tem categoria (vinho, alimentos, artesanato, couro), preço e stock. Affiliate guarda o código de referência, o tier atual e os totais de vendas e ganhos. Sale liga um Product a um Producer e, opcionalmente, a um Affiliate, guardando o valor total, a taxa de comissão aplicada e o estado (pending → confirmed → paid, ou cancelled).",
       },
       {
-        title: "Fluxo de pedido de cotação",
+        title: "Fluxo de checkout com atribuição de afiliado",
         content:
-          "Um comprador cria um quoteRequest → uma Cloud Function é acionada (onCreate) e envia uma notificação por email ao exportador via serviço de email transacional → o exportador responde com preço e prazo através da app → o estado do documento muda para responded, refletindo-se instantaneamente na interface do comprador graças às subscrições em tempo real do Firestore.",
+          "O frontend guarda o código de referência capturado da URL (?ref=CODIGO) em localStorage com validade de 30 dias, à semelhança de um cookie de atribuição. No checkout, esse código viaja no pedido; o backend resolve o afiliado, gera uma Sale por cada item do carrinho com a comissão já calculada, desconta o stock do produto e devolve um número de pedido (ex: ARG-8F42A1). Frete grátis acima de R$300, cupão de desconto opcional, e três formas de pagamento simuladas (cartão, Pix, boleto).",
       },
     ],
     features: [
-      "Catálogo de produtos exportáveis com filtros por categoria e país",
-      "Pedidos de cotação entre comprador e exportador",
-      "Perfis de exportador com documentação e certificações",
-      "Notificações em tempo real do estado de um pedido",
-      "Autenticação com papéis distintos (comprador/exportador/admin)",
+      "Catálogo de produtos filtrável por categoria (vinhos, alimentos, artesanato, couro)",
+      "Sistema de afiliados com link de referência único e 3 tiers de comissão automáticos",
+      "Carrinho e checkout com cupão de desconto e frete grátis a partir de um valor mínimo",
+      "Painel do produtor com vendas, produtos e receita confirmada",
+      "Painel do afiliado com progresso até ao próximo tier e histórico de comissões",
+      "Painel de administração com visão geral da plataforma e gestão de utilizadores",
     ],
     challenges: [
       {
-        title: "Modelar autorização sem um backend REST tradicional",
+        title: "Atribuir corretamente uma venda ao afiliado certo, mesmo em carrinhos com vários produtos",
         content:
-          "Resolvido investindo tempo dedicado nas Firestore Security Rules como se fossem testes de unidade — cada regra foi escrita e validada isoladamente antes de ser combinada com as restantes, para evitar o erro comum de regras demasiado permissivas em produtos serverless.",
+          "Resolvido tratando cada linha do carrinho como uma Sale independente em vez de dividir a comissão de um único registo de pedido — cada linha herda o mesmo referralCode do momento do checkout, o que torna trivial um produtor ver só as suas vendas e um afiliado ver só as vendas que gerou, sem cálculos cruzados.",
+      },
+      {
+        title: "Evitar que o cliente manipule a taxa de comissão",
+        content:
+          "A taxa de comissão nunca chega do frontend — é sempre lida da tabela TIER_RULES no backend a partir do tier atual do afiliado guardado na base de dados, o que fecha a porta a um comprador (ou afiliado) tentar enviar uma taxa mais alta manualmente.",
       },
     ],
     learnings: [
-      "Quando um backend serverless (Firebase) é mais adequado do que uma API tradicional — sobretudo pela necessidade de tempo real e pelo custo de operação previsível",
-      "Segurança \"data-first\": pensar as regras de acesso a partir dos dados, não a partir das rotas",
+      "Modelar vendas por linha de produto (não por pedido completo) simplifica muito consultas de \"as minhas vendas\" quando há múltiplos produtores e afiliados no mesmo checkout",
+      "Guardar regras de negócio (como os tiers de comissão) numa única fonte de verdade no backend evita duplicar a mesma lógica em vários controllers",
     ],
   },
 

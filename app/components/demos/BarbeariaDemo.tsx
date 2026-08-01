@@ -7,83 +7,189 @@ import {
   Clock,
   Users,
   LayoutDashboard,
-  BarChart3,
+  Settings,
   CheckCircle2,
-  XCircle,
   ChevronRight,
   ChevronLeft,
-  Star,
   Info,
   Lock,
   Sparkles,
-  DollarSign,
-  CalendarCheck,
-  Percent,
-  LogIn,
-  X,
-  ListChecks,
+  Building2,
+  ShieldCheck,
+  Mail,
+  Copy,
+  Check,
+  Eye,
+  EyeOff,
+  Store,
+  Crown,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
-/* Tipos                                                               */
+/* Tipos — espelham types/index.ts do projeto real (multi-tenant SaaS) */
 /* ------------------------------------------------------------------ */
 
-type Role = "cliente" | "admin";
-type ClienteView = "inicio" | "servicos" | "sobre" | "agendar" | "meus-agendamentos";
-type AdminView = "dashboard" | "agendamentos" | "barbeiros" | "servicos" | "relatorios";
-type WizardStep = "servico" | "barbeiro" | "horario" | "confirmado";
-type Status = "Confirmado" | "Pendente" | "Cancelado";
+type TopRole = "site" | "admin" | "superadmin";
+type SiteView = "inicio" | "servicos" | "sobre" | "agendar" | "meus-agendamentos";
+type AdminView = "dashboard" | "configuracoes";
+type SuperAdminView = "geral" | "barbearias" | "convites";
+type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
+type Plan = "free" | "basic" | "premium";
+type DayKey = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+type WizardStep = "servico" | "horario" | "dados" | "confirmado";
 
-interface Service {
+interface DayHours {
+  open: string;
+  close: string;
+  closed: boolean;
+}
+
+interface TenantService {
   id: string;
   name: string;
   price: number;
   duration: number;
-  desc: string;
+  active: boolean;
 }
 
-interface Barber {
+interface TeamMember {
   id: string;
   name: string;
-  specialty: string;
-  rating: number;
-  years: number;
+  role: "owner" | "staff";
+}
+
+interface Tenant {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  city: string;
+  primaryColor: string;
+  secondaryColor: string;
+  plan: Plan;
+  isActive: boolean;
+  maxUsers: number;
+  services: TenantService[];
+  businessHours: Record<DayKey, DayHours>;
+  team: TeamMember[];
 }
 
 interface Booking {
   id: string;
-  client: string;
+  tenantId: string;
+  clientName: string;
+  clientPhone: string;
   serviceId: string;
-  barberId: string;
-  date: string;
+  date: string; // YYYY-MM-DD
   time: string;
-  status: Status;
+  status: BookingStatus;
 }
 
 /* ------------------------------------------------------------------ */
-/* Dados fixos                                                         */
+/* Dados fixos — 3 barbearias de exemplo no mesmo produto (multi-tenant)*/
 /* ------------------------------------------------------------------ */
 
-const SERVICES: Service[] = [
-  { id: "corte", name: "Corte de Cabelo", price: 2500, duration: 30, desc: "Corte tradicional ou moderno, adaptado ao seu estilo" },
-  { id: "barba", name: "Barba", price: 1500, duration: 20, desc: "Aparar e desenhar a barba com toalha quente" },
-  { id: "combo", name: "Corte + Barba", price: 3500, duration: 45, desc: "O pacote completo para um visual impecável" },
-  { id: "sobrancelha", name: "Sobrancelha", price: 500, duration: 10, desc: "Alinhamento e definição da sobrancelha" },
-];
+const DAY_ORDER: DayKey[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const DAY_LABEL: Record<DayKey, string> = {
+  monday: "Segunda",
+  tuesday: "Terça",
+  wednesday: "Quarta",
+  thursday: "Quinta",
+  friday: "Sexta",
+  saturday: "Sábado",
+  sunday: "Domingo",
+};
 
-const BARBERS: Barber[] = [
-  { id: "carlos", name: "Carlos Alberto", specialty: "Especialista em cortes clássicos e modernos", rating: 4.9, years: 8 },
-  { id: "ricardo", name: "Ricardo Santos", specialty: "Especialista em barba e degradê", rating: 4.8, years: 5 },
-];
+function hours(open: string, close: string, closed = false): DayHours {
+  return { open, close, closed };
+}
 
-const CLIENT_NAMES = [
-  "Miguel Sami", "Ana Paula", "João Neto", "Teresa Kiala",
-  "Domingos Bento", "Sofia Manuel", "Eduardo Costa", "Beatriz Fernandes",
+const TENANTS: Tenant[] = [
+  {
+    id: "t1",
+    slug: "barbearia-real",
+    name: "Barbearia Real",
+    tagline: "Estilo e tradição em cada corte",
+    city: "Luanda",
+    primaryColor: "#d4af37",
+    secondaryColor: "#b8860b",
+    plan: "premium",
+    isActive: true,
+    maxUsers: 10,
+    services: [
+      { id: "corte", name: "Corte de Cabelo", price: 2500, duration: 30, active: true },
+      { id: "barba", name: "Barba", price: 1500, duration: 20, active: true },
+      { id: "combo", name: "Corte + Barba", price: 3500, duration: 45, active: true },
+      { id: "sobrancelha", name: "Sobrancelha", price: 500, duration: 10, active: true },
+    ],
+    businessHours: {
+      monday: hours("08:00", "19:00"),
+      tuesday: hours("08:00", "19:00"),
+      wednesday: hours("08:00", "19:00"),
+      thursday: hours("08:00", "19:00"),
+      friday: hours("08:00", "19:00"),
+      saturday: hours("08:00", "17:00"),
+      sunday: hours("09:00", "13:00", true),
+    },
+    team: [
+      { id: "b1", name: "Carlos Alberto", role: "owner" },
+      { id: "b2", name: "Ricardo Santos", role: "staff" },
+    ],
+  },
+  {
+    id: "t2",
+    slug: "corte-estilo",
+    name: "Corte & Estilo",
+    tagline: "O seu visual, a sua régua",
+    city: "Benguela",
+    primaryColor: "#2563eb",
+    secondaryColor: "#1e3a8a",
+    plan: "basic",
+    isActive: true,
+    maxUsers: 4,
+    services: [
+      { id: "corte", name: "Corte Clássico", price: 2000, duration: 30, active: true },
+      { id: "barba", name: "Barba Desenhada", price: 1200, duration: 20, active: true },
+      { id: "combo", name: "Corte + Barba", price: 2900, duration: 45, active: true },
+    ],
+    businessHours: {
+      monday: hours("09:00", "18:00"),
+      tuesday: hours("09:00", "18:00"),
+      wednesday: hours("09:00", "18:00"),
+      thursday: hours("09:00", "18:00"),
+      friday: hours("09:00", "18:00"),
+      saturday: hours("09:00", "15:00"),
+      sunday: hours("00:00", "00:00", true),
+    },
+    team: [{ id: "b3", name: "Domingos Bento", role: "owner" }],
+  },
+  {
+    id: "t3",
+    slug: "navalha-nova",
+    name: "Navalha Nova",
+    tagline: "Barbearia de bairro, atendimento de gente grande",
+    city: "Huambo",
+    primaryColor: "#16a34a",
+    secondaryColor: "#166534",
+    plan: "free",
+    isActive: false,
+    maxUsers: 2,
+    services: [
+      { id: "corte", name: "Corte Simples", price: 1500, duration: 30, active: true },
+      { id: "barba", name: "Barba", price: 1000, duration: 20, active: true },
+    ],
+    businessHours: {
+      monday: hours("00:00", "00:00", true),
+      tuesday: hours("10:00", "18:00"),
+      wednesday: hours("10:00", "18:00"),
+      thursday: hours("10:00", "18:00"),
+      friday: hours("10:00", "18:00"),
+      saturday: hours("10:00", "16:00"),
+      sunday: hours("00:00", "00:00", true),
+    },
+    team: [{ id: "b4", name: "Eduardo Costa", role: "owner" }],
+  },
 ];
-
-/* ------------------------------------------------------------------ */
-/* Utilitários                                                         */
-/* ------------------------------------------------------------------ */
 
 function seededRandom(seed: string) {
   let h = 0;
@@ -99,161 +205,190 @@ function formatKz(v: number) {
   return `${v.toLocaleString("pt-PT")} Kz`;
 }
 
-function serviceOf(id: string) {
-  return SERVICES.find((s) => s.id === id)!;
-}
-
-function barberOf(id: string) {
-  return BARBERS.find((b) => b.id === id)!;
-}
-
-function statusBadge(status: Status) {
-  if (status === "Confirmado") return "bg-green-500/15 text-green-300";
-  if (status === "Pendente") return "bg-amber-500/15 text-amber-300";
-  return "bg-red-500/15 text-red-300";
-}
-
-function buildDays() {
-  const labels = ["Hoje", "Amanhã", "Depois de amanhã"];
-  const out: { key: string; label: string; sub: string }[] = [];
+function buildNextDays(n: number) {
+  const out: { key: string; label: string; dayKey: DayKey }[] = [];
   const now = new Date();
-  for (let i = 0; i < 3; i++) {
+  const dayKeys: DayKey[] = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  for (let i = 0; i < n; i++) {
     const d = new Date(now);
     d.setDate(now.getDate() + i);
     out.push({
       key: d.toISOString().slice(0, 10),
-      label: labels[i],
-      sub: d.toLocaleDateString("pt-PT", { day: "2-digit", month: "short" }),
+      label: i === 0 ? "Hoje" : i === 1 ? "Amanhã" : d.toLocaleDateString("pt-PT", { weekday: "short", day: "2-digit", month: "short" }),
+      dayKey: dayKeys[d.getDay()],
     });
   }
   return out;
 }
 
-function buildSlots(barberId: string, dayKey: string) {
-  const rand = seededRandom(`${barberId}-${dayKey}`);
+// Espelha app/t/[slug]/components/booking/hooks.ts do projeto real: os
+// horários disponíveis nascem do businessHours do tenant para o dia da
+// semana escolhido — não existe escolha de barbeiro no fluxo de marcação.
+function buildSlots(tenant: Tenant, dayKey: DayKey, dateKey: string) {
+  const schedule = tenant.businessHours[dayKey];
+  if (schedule.closed) return [];
+  const rand = seededRandom(`${tenant.id}-${dateKey}`);
+  const [openH, openM] = schedule.open.split(":").map(Number);
+  const [closeH, closeM] = schedule.close.split(":").map(Number);
   const slots: { time: string; available: boolean }[] = [];
-  for (let h = 9; h <= 18; h++) {
-    for (const m of [0, 30]) {
-      if (h === 18 && m === 30) continue;
-      const time = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-      slots.push({ time, available: rand() > 0.32 });
-    }
+  for (let m = openH * 60 + openM; m < closeH * 60 + closeM; m += 30) {
+    const time = `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+    slots.push({ time, available: rand() > 0.32 });
   }
   return slots;
 }
 
-function seedAdminBookings(): Booking[] {
-  const rand = seededRandom("barbearia-admin-seed");
-  const statuses: Status[] = ["Confirmado", "Confirmado", "Confirmado", "Pendente", "Cancelado"];
-  const times = ["09:00", "09:30", "10:30", "11:00", "13:00", "14:30", "15:00", "16:30"];
-  return CLIENT_NAMES.map((name, i) => ({
-    id: `AG-${1000 + i}`,
-    client: name,
-    serviceId: SERVICES[Math.floor(rand() * SERVICES.length)].id,
-    barberId: BARBERS[Math.floor(rand() * BARBERS.length)].id,
-    date: "Hoje",
-    time: times[i % times.length],
-    status: statuses[Math.floor(rand() * statuses.length)],
-  }));
+function seedBookings(): Booking[] {
+  const rand = seededRandom("barbearia-multi-seed");
+  const statuses: BookingStatus[] = ["confirmed", "confirmed", "pending", "completed", "cancelled", "confirmed", "pending", "completed"];
+  const names = ["Miguel Sami", "Ana Paula", "João Neto", "Teresa Kiala", "Sofia Manuel", "Beatriz Fernandes", "Adão Mateus", "Isabel Cruz"];
+  const out: Booking[] = [];
+  let n = 0;
+  for (const tenant of TENANTS) {
+    for (let i = 0; i < 5; i++) {
+      const service = tenant.services[Math.floor(rand() * tenant.services.length)];
+      out.push({
+        id: `AG-${1000 + n}`,
+        tenantId: tenant.id,
+        clientName: names[n % names.length],
+        clientPhone: `9${Math.floor(10000000 + rand() * 89999999)}`,
+        serviceId: service.id,
+        date: new Date().toISOString().slice(0, 10),
+        time: ["09:00", "10:30", "11:00", "14:00", "15:30", "16:00", "17:00", "12:00"][n % 8],
+        status: statuses[n % statuses.length],
+      });
+      n++;
+    }
+  }
+  return out;
 }
+
+function statusLabel(status: BookingStatus) {
+  return { pending: "Pendente", confirmed: "Confirmado", cancelled: "Cancelado", completed: "Concluído" }[status];
+}
+
+function statusBadge(status: BookingStatus) {
+  if (status === "confirmed") return "bg-green-500/15 text-green-300 border-green-500/30";
+  if (status === "pending") return "bg-yellow-500/15 text-yellow-300 border-yellow-500/30";
+  if (status === "completed") return "bg-blue-500/15 text-blue-300 border-blue-500/30";
+  return "bg-red-500/15 text-red-300 border-red-500/30";
+}
+
+const PLAN_LABEL: Record<Plan, string> = { free: "Free", basic: "Basic", premium: "Premium" };
 
 /* ------------------------------------------------------------------ */
 /* Componente principal                                                */
 /* ------------------------------------------------------------------ */
 
 export default function BarbeariaDemo() {
-  const [role, setRole] = useState<Role>("cliente");
-  const [clienteView, setClienteView] = useState<ClienteView>("inicio");
+  const [role, setRole] = useState<TopRole>("site");
+  const [tenantId, setTenantId] = useState("t1");
+  const [siteView, setSiteView] = useState<SiteView>("inicio");
   const [adminView, setAdminView] = useState<AdminView>("dashboard");
+  const [superView, setSuperView] = useState<SuperAdminView>("geral");
 
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [name, setName] = useState("");
+  const [bookings, setBookings] = useState<Booking[]>(seedBookings);
+  const [tenants, setTenants] = useState<Tenant[]>(TENANTS);
 
   const [wizardStep, setWizardStep] = useState<WizardStep>("servico");
   const [chosenService, setChosenService] = useState<string | null>(null);
-  const [chosenBarber, setChosenBarber] = useState<string | null>(null);
-  const [chosenDay, setChosenDay] = useState(buildDays()[0].key);
+  const days = useMemo(() => buildNextDays(4), []);
+  const [chosenDay, setChosenDay] = useState(days[0].key);
   const [chosenTime, setChosenTime] = useState<string | null>(null);
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
 
-  const [myBookings, setMyBookings] = useState<Booking[]>([
-    { id: "AG-0042", client: "Você", serviceId: "corte", barberId: "carlos", date: "Amanhã", time: "10:30", status: "Confirmado" },
-  ]);
+  const [adminFilter, setAdminFilter] = useState<"all" | BookingStatus>("all");
+  const [inviteMode, setInviteMode] = useState<"nova-barbearia" | "novo-usuario">("nova-barbearia");
+  const [generatedInvite, setGeneratedInvite] = useState<{ token: string; expiresAt: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const [adminBookings, setAdminBookings] = useState<Booking[]>(seedAdminBookings);
+  const tenant = tenants.find((t) => t.id === tenantId)!;
+  const dayInfo = days.find((d) => d.key === chosenDay)!;
+  const slots = useMemo(() => buildSlots(tenant, dayInfo.dayKey, chosenDay), [tenant, dayInfo, chosenDay]);
+  const isClosedDay = tenant.businessHours[dayInfo.dayKey].closed;
 
-  const days = useMemo(buildDays, []);
-  const slots = useMemo(() => buildSlots(chosenBarber ?? "carlos", chosenDay), [chosenBarber, chosenDay]);
-  const dayLabel = days.find((d) => d.key === chosenDay)?.label ?? "Hoje";
+  const tenantBookings = bookings.filter((b) => b.tenantId === tenantId);
+  const filteredAdminBookings = tenantBookings.filter((b) => adminFilter === "all" || b.status === adminFilter);
 
-  const currentPath =
-    role === "cliente"
-      ? `barbearia.com/${clienteView === "inicio" ? "" : clienteView}`
-      : `barbearia.com/admin/${adminView}`;
+  function serviceOf(id: string) {
+    return tenant.services.find((s) => s.id === id) ?? tenant.services[0];
+  }
 
   function startBooking() {
     setWizardStep("servico");
     setChosenService(null);
-    setChosenBarber(null);
     setChosenTime(null);
-    setClienteView("agendar");
+    setSiteView("agendar");
   }
 
   function confirmBooking() {
-    if (!chosenService || !chosenBarber || !chosenTime) return;
+    if (!chosenService || !chosenTime || !clientName.trim() || !clientPhone.trim()) return;
     const booking: Booking = {
       id: `AG-${Math.floor(1000 + Math.random() * 8999)}`,
-      client: name.trim() || "Você",
+      tenantId: tenant.id,
+      clientName: clientName.trim(),
+      clientPhone: clientPhone.trim(),
       serviceId: chosenService,
-      barberId: chosenBarber,
-      date: dayLabel,
+      date: chosenDay,
       time: chosenTime,
-      status: "Confirmado",
+      status: "pending",
     };
-    setMyBookings((b) => [booking, ...b]);
+    setBookings((prev) => [booking, ...prev]);
     setWizardStep("confirmado");
   }
 
-  function cancelMyBooking(id: string) {
-    setMyBookings((list) => list.map((b) => (b.id === id ? { ...b, status: "Cancelado" } : b)));
+  function updateBookingStatus(id: string, status: BookingStatus) {
+    setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status } : b)));
   }
 
-  function setAdminStatus(id: string, status: Status) {
-    setAdminBookings((list) => list.map((b) => (b.id === id ? { ...b, status } : b)));
+  function toggleTenantActive(id: string) {
+    setTenants((prev) => prev.map((t) => (t.id === id ? { ...t, isActive: !t.isActive } : t)));
   }
 
-  const todayBookings = adminBookings.filter((b) => b.date === "Hoje");
-  const revenueToday = todayBookings
-    .filter((b) => b.status === "Confirmado")
-    .reduce((sum, b) => sum + serviceOf(b.serviceId).price, 0);
-  const activeClients = new Set(todayBookings.map((b) => b.client)).size;
-  const occupiedSlots = todayBookings.filter((b) => b.status !== "Cancelado").length;
-  const occupancy = Math.min(100, Math.round((occupiedSlots / 16) * 100));
+  function toggleServiceActive(serviceId: string) {
+    setTenants((prev) =>
+      prev.map((t) => (t.id !== tenant.id ? t : { ...t, services: t.services.map((s) => (s.id === serviceId ? { ...s, active: !s.active } : s)) }))
+    );
+  }
 
-  const CLIENTE_NAV: { key: ClienteView; label: string }[] = [
+  function toggleDayClosed(dayKey: DayKey) {
+    setTenants((prev) =>
+      prev.map((t) =>
+        t.id !== tenant.id ? t : { ...t, businessHours: { ...t.businessHours, [dayKey]: { ...t.businessHours[dayKey], closed: !t.businessHours[dayKey].closed } } }
+      )
+    );
+  }
+
+  function generateInvite() {
+    const token = Array.from({ length: 12 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 7);
+    setGeneratedInvite({ token, expiresAt: expires.toLocaleDateString("pt-PT") });
+  }
+
+  // agregados globais (superadmin)
+  const totalUsers = tenants.reduce((s, t) => s + t.team.length, 0);
+  const totalBookings = bookings.length;
+  const pendingBookings = bookings.filter((b) => b.status === "pending").length;
+  const activeTenants = tenants.filter((t) => t.isActive).length;
+
+  const SITE_NAV: { key: SiteView; label: string }[] = [
     { key: "inicio", label: "Início" },
     { key: "servicos", label: "Serviços" },
     { key: "sobre", label: "Sobre Nós" },
     { key: "meus-agendamentos", label: "Meus Agendamentos" },
   ];
 
-  const ADMIN_NAV: { key: AdminView; label: string; icon: React.ReactNode }[] = [
-    { key: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={16} /> },
-    { key: "agendamentos", label: "Agendamentos", icon: <Calendar size={16} /> },
-    { key: "barbeiros", label: "Barbeiros", icon: <Users size={16} /> },
-    { key: "servicos", label: "Serviços", icon: <Scissors size={16} /> },
-    { key: "relatorios", label: "Relatórios", icon: <BarChart3 size={16} /> },
-  ];
-
   return (
     <div className="rounded-2xl border border-gray-800 bg-gray-900/60 overflow-hidden">
-      {/* aviso de simulação */}
       <div className="flex items-start gap-3 p-4 bg-amber-500/10 border-b border-amber-500/20">
         <Info size={18} className="text-amber-400 mt-0.5 shrink-0" />
         <p className="text-amber-200 text-sm leading-relaxed">
-          Simulação a correr apenas no seu browser — não existe backend real nem base de dados.
-          Esta demo reconstrói o site público de agendamentos e o painel administrativo da Barbearia
-          tal como existem no produto real, para navegar como lá.
+          Simulação a correr apenas no seu browser — não existe backend real nem base de dados. O produto real é
+          um SaaS multi-tenant: cada barbearia é um &quot;tenant&quot; com a sua própria marca, cores, serviços e horário de
+          funcionamento no mesmo código. Troque de barbearia abaixo para ver o white-label em ação, e explore o
+          painel de administração de cada uma e o super-admin que gere todas as barbearias da plataforma.
         </p>
       </div>
 
@@ -266,101 +401,105 @@ export default function BarbeariaDemo() {
         </div>
         <div className="flex-1 min-w-0 flex items-center gap-1.5 px-3 py-1 rounded-md bg-gray-900 border border-gray-800 text-xs text-gray-500 font-mono truncate">
           <Lock size={10} className="text-green-500 shrink-0" />
-          {currentPath}
+          barbearia.app/{role === "site" ? `t/${tenant.slug}` : role === "admin" ? `t/${tenant.slug}/admin` : "superadmin"}
         </div>
-        <div className="hidden sm:flex items-center gap-1 shrink-0 bg-gray-900 border border-gray-800 rounded-full p-0.5">
-          <button
-            onClick={() => setRole("cliente")}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
-              role === "cliente" ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-black" : "text-gray-400 hover:text-white"
-            }`}
-          >
-            Cliente
-          </button>
-          <button
-            onClick={() => setRole("admin")}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
-              role === "admin" ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-black" : "text-gray-400 hover:text-white"
-            }`}
-          >
-            Administração
-          </button>
-        </div>
-      </div>
-      <div className="flex sm:hidden items-center gap-1 px-4 py-2 bg-gray-950 border-b border-gray-800">
-        <button
-          onClick={() => setRole("cliente")}
-          className={`flex-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-            role === "cliente" ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-black" : "text-gray-400 border border-gray-800"
-          }`}
-        >
-          Cliente
-        </button>
-        <button
-          onClick={() => setRole("admin")}
-          className={`flex-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-            role === "admin" ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-black" : "text-gray-400 border border-gray-800"
-          }`}
-        >
-          Administração
-        </button>
       </div>
 
+      {/* seletor de papel */}
+      <div className="flex items-center gap-1 px-4 py-2 bg-gray-950 border-b border-gray-800 overflow-x-auto">
+        {(
+          [
+            { key: "site", label: "Site do cliente", icon: <Scissors size={13} /> },
+            { key: "admin", label: "Admin da barbearia", icon: <LayoutDashboard size={13} /> },
+            { key: "superadmin", label: "Super-admin (SaaS)", icon: <ShieldCheck size={13} /> },
+          ] as { key: TopRole; label: string; icon: React.ReactNode }[]
+        ).map((r) => (
+          <button
+            key={r.key}
+            onClick={() => setRole(r.key)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              role === r.key ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-black" : "text-gray-400 border border-gray-800 hover:text-white"
+            }`}
+          >
+            {r.icon}
+            {r.label}
+          </button>
+        ))}
+      </div>
+
+      {/* seletor de tenant (só faz sentido fora do super-admin) */}
+      {role !== "superadmin" && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-950/60 border-b border-gray-800 overflow-x-auto">
+          <span className="text-[11px] text-gray-500 uppercase tracking-wide shrink-0">Barbearia:</span>
+          {tenants.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setTenantId(t.id);
+                setSiteView("inicio");
+                setAdminView("dashboard");
+              }}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap border transition-colors"
+              style={
+                tenantId === t.id
+                  ? { backgroundColor: t.primaryColor, borderColor: t.primaryColor, color: "#0a0a0a" }
+                  : { borderColor: "#374151", color: "#9ca3af" }
+              }
+            >
+              <Store size={12} />
+              {t.name}
+              <span className="opacity-70">· {PLAN_LABEL[t.plan]}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* ---------------------------------------------------------- */}
-      {/* CLIENTE                                                     */}
+      {/* SITE DO CLIENTE (por tenant)                                */}
       {/* ---------------------------------------------------------- */}
-      {role === "cliente" && (
+      {role === "site" && (
         <div>
-          {/* nav do site */}
           <div className="flex items-center justify-between gap-2 px-4 sm:px-6 py-3 border-b border-gray-800 bg-gray-950/40 overflow-x-auto">
             <div className="flex items-center gap-2 shrink-0">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-700 flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: tenant.primaryColor }}>
                 <Scissors size={14} className="text-black" />
               </div>
-              <span className="font-black text-sm bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent whitespace-nowrap">
-                BarberShop
+              <span className="font-black text-sm whitespace-nowrap" style={{ color: tenant.primaryColor }}>
+                {tenant.name}
               </span>
             </div>
             <div className="hidden md:flex items-center gap-1">
-              {CLIENTE_NAV.map((item) => (
+              {SITE_NAV.map((item) => (
                 <button
                   key={item.key}
-                  onClick={() => setClienteView(item.key)}
+                  onClick={() => setSiteView(item.key)}
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                    clienteView === item.key ? "bg-gray-800 text-amber-400" : "text-gray-400 hover:text-white"
+                    siteView === item.key ? "bg-gray-800" : "text-gray-400 hover:text-white"
                   }`}
+                  style={siteView === item.key ? { color: tenant.primaryColor } : undefined}
                 >
                   {item.label}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => (loggedIn ? undefined : setShowLogin(true))}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-gray-400 border border-gray-800 hover:text-white hover:border-gray-700 transition-colors"
-              >
-                <LogIn size={13} />
-                {loggedIn ? (name.trim() || "Você") : "Entrar"}
-              </button>
-              <button
-                onClick={startBooking}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-amber-500 to-yellow-600 text-black hover:opacity-90 transition-opacity"
-              >
-                <Calendar size={13} />
-                Fazer Agendamento
-              </button>
-            </div>
+            <button
+              onClick={startBooking}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-black hover:opacity-90 transition-opacity shrink-0"
+              style={{ backgroundColor: tenant.primaryColor }}
+            >
+              <Calendar size={13} />
+              Agendar
+            </button>
           </div>
-
-          {/* nav mobile */}
           <div className="flex md:hidden items-center gap-1 px-4 py-2 border-b border-gray-800 bg-gray-950/40 overflow-x-auto">
-            {CLIENTE_NAV.map((item) => (
+            {SITE_NAV.map((item) => (
               <button
                 key={item.key}
-                onClick={() => setClienteView(item.key)}
+                onClick={() => setSiteView(item.key)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                  clienteView === item.key ? "bg-gray-800 text-amber-400" : "text-gray-400"
+                  siteView === item.key ? "bg-gray-800" : "text-gray-400"
                 }`}
+                style={siteView === item.key ? { color: tenant.primaryColor } : undefined}
               >
                 {item.label}
               </button>
@@ -368,34 +507,40 @@ export default function BarbeariaDemo() {
           </div>
 
           <div className="p-5 sm:p-6 min-h-[440px]">
-            {clienteView === "inicio" && (
+            {siteView === "inicio" && (
               <div className="text-center py-6 sm:py-10 space-y-5">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold">
+                <div
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold"
+                  style={{ backgroundColor: `${tenant.primaryColor}1a`, borderColor: `${tenant.primaryColor}40`, color: tenant.primaryColor }}
+                >
                   <Sparkles size={12} />
-                  Desde 2018 · Luanda
+                  {tenant.city}
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black">
-                  Estilo e tradição <span className="text-amber-400">em cada corte</span>
+                  {tenant.tagline.split(" ").slice(0, -2).join(" ")}{" "}
+                  <span style={{ color: tenant.primaryColor }}>{tenant.tagline.split(" ").slice(-2).join(" ")}</span>
                 </h3>
                 <p className="text-gray-400 text-sm max-w-md mx-auto">
-                  Marque o seu horário em menos de um minuto e garanta o seu lugar com os melhores
-                  barbeiros da cidade — sem filas, sem WhatsApp perdido.
+                  Marque o seu horário em menos de um minuto e garanta o seu lugar — sem filas, sem WhatsApp perdido.
                 </p>
                 <button
                   onClick={startBooking}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-semibold hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-black font-semibold hover:opacity-90 transition-opacity"
+                  style={{ backgroundColor: tenant.primaryColor }}
                 >
                   <Calendar size={16} />
                   Marcar horário agora
                 </button>
                 <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto pt-4">
                   {[
-                    { label: "Clientes/mês", value: "300+" },
-                    { label: "Avaliação", value: "4.9★" },
-                    { label: "Barbeiros", value: "2" },
+                    { label: "Plano", value: PLAN_LABEL[tenant.plan] },
+                    { label: "Equipa", value: String(tenant.team.length) },
+                    { label: "Serviços", value: String(tenant.services.filter((s) => s.active).length) },
                   ].map((s) => (
                     <div key={s.label} className="p-3 rounded-lg bg-gray-950/60 border border-gray-800">
-                      <p className="text-lg font-bold text-amber-400">{s.value}</p>
+                      <p className="text-lg font-bold" style={{ color: tenant.primaryColor }}>
+                        {s.value}
+                      </p>
                       <p className="text-[11px] text-gray-500">{s.label}</p>
                     </div>
                   ))}
@@ -403,655 +548,596 @@ export default function BarbeariaDemo() {
               </div>
             )}
 
-            {clienteView === "servicos" && (
+            {siteView === "servicos" && (
               <div className="space-y-4">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
-                  <Scissors size={18} className="text-amber-400" />
+                  <Scissors size={18} style={{ color: tenant.primaryColor }} />
                   Os nossos serviços
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {SERVICES.map((s) => (
-                    <div key={s.id} className="p-4 rounded-xl bg-gray-950/60 border border-gray-800 flex flex-col gap-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-sm">{s.name}</p>
-                        <span className="text-amber-400 font-bold text-sm whitespace-nowrap">{formatKz(s.price)}</span>
+                  {tenant.services
+                    .filter((s) => s.active)
+                    .map((s) => (
+                      <div key={s.id} className="p-4 rounded-xl bg-gray-950/60 border border-gray-800 flex flex-col gap-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-semibold text-sm">{s.name}</p>
+                          <span className="font-bold text-sm whitespace-nowrap" style={{ color: tenant.primaryColor }}>
+                            {formatKz(s.price)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="flex items-center gap-1 text-[11px] text-gray-500">
+                            <Clock size={11} />
+                            {s.duration} min
+                          </span>
+                          <button
+                            onClick={() => {
+                              setChosenService(s.id);
+                              setWizardStep("horario");
+                              setSiteView("agendar");
+                            }}
+                            className="text-xs font-semibold flex items-center gap-1"
+                            style={{ color: tenant.primaryColor }}
+                          >
+                            Agendar
+                            <ChevronRight size={12} />
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-500">{s.desc}</p>
-                      <div className="flex items-center justify-between pt-1">
-                        <span className="flex items-center gap-1 text-[11px] text-gray-500">
-                          <Clock size={11} />
-                          {s.duration} min
-                        </span>
-                        <button
-                          onClick={() => {
-                            setChosenService(s.id);
-                            setWizardStep("barbeiro");
-                            setClienteView("agendar");
-                          }}
-                          className="text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1"
-                        >
-                          Agendar
-                          <ChevronRight size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}
 
-            {clienteView === "sobre" && (
+            {siteView === "sobre" && (
               <div className="space-y-4 max-w-xl">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
-                  <Info size={18} className="text-amber-400" />
+                  <Info size={18} style={{ color: tenant.primaryColor }} />
                   Sobre nós
                 </h4>
                 <p className="text-sm text-gray-400 leading-relaxed">
-                  A BarberShop nasceu do gosto por fazer bem feito: cortes precisos, barba desenhada
-                  com cuidado e um ambiente onde o cliente se sente em casa. Ao longo dos anos,
-                  construímos uma equipa pequena e especializada em vez de crescer sem controlo —
-                  preferimos dois barbeiros excelentes a dez medianos.
-                </p>
-                <p className="text-sm text-gray-400 leading-relaxed">
-                  Hoje, a maior parte das nossas marcações acontece online, o que nos permite planear
-                  o dia com antecedência e reduzir o tempo de espera de cada cliente.
+                  A {tenant.name} faz parte de uma rede de barbearias que partilham a mesma plataforma de
+                  agendamento — cada uma com a sua marca, os seus preços e o seu horário, geridos de forma
+                  totalmente independente pelo respetivo dono.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {BARBERS.map((b) => (
+                  {tenant.team.map((b) => (
                     <span key={b.id} className="text-xs px-3 py-1 rounded-full bg-gray-950/60 border border-gray-800 text-gray-300">
-                      {b.name} · {b.years} anos de experiência
+                      {b.name} · {b.role === "owner" ? "Proprietário" : "Barbeiro"}
                     </span>
                   ))}
                 </div>
               </div>
             )}
 
-            {clienteView === "meus-agendamentos" && (
+            {siteView === "meus-agendamentos" && (
               <div className="space-y-3">
                 <h4 className="font-semibold text-lg flex items-center gap-2">
-                  <ListChecks size={18} className="text-amber-400" />
+                  <Calendar size={18} style={{ color: tenant.primaryColor }} />
                   Meus agendamentos
                 </h4>
-                {myBookings.length === 0 && (
-                  <p className="text-sm text-gray-500">Ainda não tem nenhuma marcação.</p>
+                {tenantBookings.filter((b) => b.clientName === (clientName.trim() || "Você")).length === 0 && (
+                  <p className="text-sm text-gray-500">
+                    Ainda não fez nenhuma marcação nesta barbearia. Faça uma em &quot;Agendar&quot; e ela aparece aqui.
+                  </p>
                 )}
-                {myBookings.map((b) => {
-                  const svc = serviceOf(b.serviceId);
-                  const brb = barberOf(b.barberId);
-                  return (
+                {tenantBookings
+                  .filter((b) => b.clientName === (clientName.trim() || "Você"))
+                  .map((b) => (
                     <div key={b.id} className="p-3.5 rounded-lg bg-gray-950/60 border border-gray-800 flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm truncate">{svc.name}</p>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full shrink-0 ${statusBadge(b.status)}`}>{b.status}</span>
+                          <p className="font-semibold text-sm truncate">{serviceOf(b.serviceId).name}</p>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full border shrink-0 ${statusBadge(b.status)}`}>{statusLabel(b.status)}</span>
                         </div>
                         <p className="text-xs text-gray-500 mt-0.5">
-                          {brb.name} · {b.date}, {b.time}
+                          {b.date}, {b.time}
                         </p>
                       </div>
-                      {b.status === "Confirmado" && (
-                        <button
-                          onClick={() => cancelMyBooking(b.id)}
-                          className="text-xs font-semibold text-red-400 hover:text-red-300 shrink-0"
-                        >
-                          Cancelar
-                        </button>
-                      )}
                     </div>
-                  );
-                })}
+                  ))}
               </div>
             )}
 
-            {clienteView === "agendar" && (
-              <BookingWizard
-                step={wizardStep}
-                setStep={setWizardStep}
-                chosenService={chosenService}
-                setChosenService={setChosenService}
-                chosenBarber={chosenBarber}
-                setChosenBarber={setChosenBarber}
-                chosenDay={chosenDay}
-                setChosenDay={setChosenDay}
-                chosenTime={chosenTime}
-                setChosenTime={setChosenTime}
-                days={days}
-                slots={slots}
-                dayLabel={dayLabel}
-                onConfirm={confirmBooking}
-                onFinish={() => setClienteView("meus-agendamentos")}
-              />
+            {siteView === "agendar" && (
+              <div className="max-w-lg mx-auto space-y-5">
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  {(["servico", "horario", "dados", "confirmado"] as WizardStep[]).map((s, i) => (
+                    <span key={s} className="flex items-center gap-2">
+                      <span
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
+                        style={
+                          wizardStep === s || (["horario", "dados", "confirmado"].indexOf(wizardStep) >= i && wizardStep !== "servico")
+                            ? { backgroundColor: tenant.primaryColor, color: "#0a0a0a" }
+                            : { backgroundColor: "#1f2937", color: "#6b7280" }
+                        }
+                      >
+                        {i + 1}
+                      </span>
+                      {i < 3 && <span className="w-4 h-px bg-gray-700" />}
+                    </span>
+                  ))}
+                </div>
+
+                {wizardStep === "servico" && (
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-base mb-2">Escolha o serviço</h4>
+                    {tenant.services
+                      .filter((s) => s.active)
+                      .map((s) => (
+                        <button
+                          key={s.id}
+                          onClick={() => {
+                            setChosenService(s.id);
+                            setWizardStep("horario");
+                          }}
+                          className="w-full flex items-center justify-between p-3.5 rounded-xl bg-gray-950/60 border border-gray-800 hover:border-gray-700 text-left"
+                        >
+                          <span>
+                            <span className="block text-sm font-medium">{s.name}</span>
+                            <span className="block text-xs text-gray-500">{s.duration} min</span>
+                          </span>
+                          <span className="font-bold text-sm" style={{ color: tenant.primaryColor }}>
+                            {formatKz(s.price)}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                )}
+
+                {wizardStep === "horario" && (
+                  <div className="space-y-4">
+                    <button onClick={() => setWizardStep("servico")} className="flex items-center gap-1 text-xs text-gray-500 hover:text-white">
+                      <ChevronLeft size={13} /> Voltar
+                    </button>
+                    <h4 className="font-semibold text-base">Escolha o dia e o horário</h4>
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {days.map((d) => (
+                        <button
+                          key={d.key}
+                          onClick={() => {
+                            setChosenDay(d.key);
+                            setChosenTime(null);
+                          }}
+                          className="px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap border"
+                          style={
+                            chosenDay === d.key
+                              ? { backgroundColor: tenant.primaryColor, borderColor: tenant.primaryColor, color: "#0a0a0a" }
+                              : { borderColor: "#374151", color: "#9ca3af" }
+                          }
+                        >
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+                    {isClosedDay ? (
+                      <p className="text-sm text-gray-500 py-6 text-center">
+                        A {tenant.name} está fechada neste dia. Escolha outra data acima.
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                        {slots.map((slot) => (
+                          <button
+                            key={slot.time}
+                            disabled={!slot.available}
+                            onClick={() => setChosenTime(slot.time)}
+                            className={`px-2 py-2 rounded-lg text-xs font-semibold border transition-colors ${
+                              !slot.available ? "opacity-30 cursor-not-allowed border-gray-800 text-gray-600" : ""
+                            }`}
+                            style={
+                              slot.available && chosenTime === slot.time
+                                ? { backgroundColor: tenant.primaryColor, borderColor: tenant.primaryColor, color: "#0a0a0a" }
+                                : slot.available
+                                ? { borderColor: "#374151", color: "#e5e7eb" }
+                                : undefined
+                            }
+                          >
+                            {slot.time}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => chosenTime && setWizardStep("dados")}
+                      disabled={!chosenTime}
+                      className="w-full py-2.5 rounded-full font-semibold text-sm text-black disabled:opacity-30"
+                      style={{ backgroundColor: tenant.primaryColor }}
+                    >
+                      Continuar
+                    </button>
+                  </div>
+                )}
+
+                {wizardStep === "dados" && (
+                  <div className="space-y-4">
+                    <button onClick={() => setWizardStep("horario")} className="flex items-center gap-1 text-xs text-gray-500 hover:text-white">
+                      <ChevronLeft size={13} /> Voltar
+                    </button>
+                    <h4 className="font-semibold text-base">Os seus dados</h4>
+                    <div className="space-y-3">
+                      <input
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
+                        placeholder="Nome completo"
+                        className="w-full rounded-xl bg-gray-950/60 border border-gray-800 px-3.5 py-2.5 text-sm outline-none focus:border-gray-600"
+                      />
+                      <input
+                        value={clientPhone}
+                        onChange={(e) => setClientPhone(e.target.value)}
+                        placeholder="923 145 778"
+                        className="w-full rounded-xl bg-gray-950/60 border border-gray-800 px-3.5 py-2.5 text-sm outline-none focus:border-gray-600"
+                      />
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-gray-950/60 border border-gray-800 text-xs text-gray-400 space-y-1">
+                      <p>
+                        <span className="text-gray-500">Serviço:</span> {chosenService ? serviceOf(chosenService).name : "—"}
+                      </p>
+                      <p>
+                        <span className="text-gray-500">Data:</span> {dayInfo.label} às {chosenTime}
+                      </p>
+                    </div>
+                    <button
+                      onClick={confirmBooking}
+                      disabled={!clientName.trim() || !clientPhone.trim()}
+                      className="w-full py-2.5 rounded-full font-semibold text-sm text-black disabled:opacity-30"
+                      style={{ backgroundColor: tenant.primaryColor }}
+                    >
+                      Confirmar agendamento
+                    </button>
+                  </div>
+                )}
+
+                {wizardStep === "confirmado" && (
+                  <div className="flex flex-col items-center text-center gap-3 py-10">
+                    <div className="w-14 h-14 rounded-full bg-green-500/15 text-green-400 flex items-center justify-center">
+                      <CheckCircle2 size={26} />
+                    </div>
+                    <h4 className="text-lg font-bold">Marcação enviada!</h4>
+                    <p className="text-sm text-gray-400 max-w-xs">
+                      O seu agendamento em <span className="text-white font-medium">{tenant.name}</span> ficou com estado{" "}
+                      <span className="text-yellow-300 font-medium">Pendente</span> até o barbeiro confirmar — veja isso a
+                      acontecer no separador &quot;Admin da barbearia&quot;.
+                    </p>
+                    <button
+                      onClick={() => setSiteView("meus-agendamentos")}
+                      className="mt-1 px-5 py-2 rounded-full border border-gray-700 text-sm font-medium hover:border-gray-500"
+                    >
+                      Ver os meus agendamentos
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
       )}
 
       {/* ---------------------------------------------------------- */}
-      {/* ADMIN                                                       */}
+      {/* ADMIN DA BARBEARIA (por tenant)                             */}
       {/* ---------------------------------------------------------- */}
       {role === "admin" && (
-        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr]">
-          <div className="border-b md:border-b-0 md:border-r border-gray-800 bg-gray-950/40 p-3 flex md:flex-col gap-1 overflow-x-auto">
-            <div className="hidden md:flex items-center gap-2 px-2 pb-3 mb-2 border-b border-gray-800">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-700 flex items-center justify-center shrink-0">
-                <Scissors size={14} className="text-black" />
-              </div>
-              <span className="font-black text-sm bg-gradient-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">
-                BarberShop Admin
-              </span>
-            </div>
-            {ADMIN_NAV.map((item) => (
+        <div className="p-4 sm:p-6 space-y-6 min-h-[440px]">
+          <div className="flex items-center gap-1 bg-gray-950/60 border border-gray-800 rounded-full p-1 w-fit">
+            {(
+              [
+                { key: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={13} /> },
+                { key: "configuracoes", label: "Configurações", icon: <Settings size={13} /> },
+              ] as { key: AdminView; label: string; icon: React.ReactNode }[]
+            ).map((v) => (
               <button
-                key={item.key}
-                onClick={() => setAdminView(item.key)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
-                  adminView === item.key
-                    ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-black"
-                    : "text-gray-400 hover:text-white hover:bg-gray-900/60"
+                key={v.key}
+                onClick={() => setAdminView(v.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  adminView === v.key ? "text-black" : "text-gray-400"
                 }`}
+                style={adminView === v.key ? { backgroundColor: tenant.primaryColor } : undefined}
               >
-                {item.icon}
-                {item.label}
+                {v.icon}
+                {v.label}
               </button>
             ))}
           </div>
 
-          <div className="p-5 sm:p-6 min-h-[440px]">
-            {adminView === "dashboard" && (
-              <div className="space-y-5">
-                <h4 className="font-semibold text-lg">Visão geral de hoje</h4>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <StatCard icon={<CalendarCheck size={14} className="text-amber-400" />} label="Agendamentos Hoje" value={String(todayBookings.length)} />
-                  <StatCard icon={<DollarSign size={14} className="text-amber-400" />} label="Receita do Dia" value={formatKz(revenueToday)} />
-                  <StatCard icon={<Users size={14} className="text-amber-400" />} label="Clientes Ativos" value={String(activeClients)} />
-                  <StatCard icon={<Percent size={14} className="text-amber-400" />} label="Taxa de Ocupação" value={`${occupancy}%`} />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Agendamentos de hoje</p>
-                  <BookingTable
-                    rows={todayBookings}
-                    onConfirm={(id) => setAdminStatus(id, "Confirmado")}
-                    onCancel={(id) => setAdminStatus(id, "Cancelado")}
-                  />
+          {adminView === "dashboard" && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <AdminStat icon={<Calendar size={18} />} label="Total de Agendamentos" value={tenantBookings.length} color={tenant.primaryColor} />
+                <AdminStat icon={<Clock size={18} />} label="Pendentes" value={tenantBookings.filter((b) => b.status === "pending").length} color="#eab308" />
+                <AdminStat icon={<CheckCircle2 size={18} />} label="Confirmados" value={tenantBookings.filter((b) => b.status === "confirmed").length} color="#22c55e" />
+                <AdminStat icon={<ChevronRight size={18} />} label="Concluídos" value={tenantBookings.filter((b) => b.status === "completed").length} color="#3b82f6" />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    { value: "all", label: "Todos" },
+                    { value: "pending", label: "Pendentes" },
+                    { value: "confirmed", label: "Confirmados" },
+                    { value: "cancelled", label: "Cancelados" },
+                    { value: "completed", label: "Concluídos" },
+                  ] as { value: "all" | BookingStatus; label: string }[]
+                ).map((f) => (
+                  <button
+                    key={f.value}
+                    onClick={() => setAdminFilter(f.value)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                      adminFilter === f.value ? "text-black border-transparent" : "text-gray-400 border-gray-800"
+                    }`}
+                    style={adminFilter === f.value ? { backgroundColor: tenant.primaryColor } : undefined}
+                  >
+                    {f.label} (
+                    {f.value === "all" ? tenantBookings.length : tenantBookings.filter((b) => b.status === f.value).length})
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-2.5">
+                {filteredAdminBookings.length === 0 && <p className="text-sm text-gray-500 py-6 text-center">Sem agendamentos neste filtro.</p>}
+                {filteredAdminBookings.map((b) => (
+                  <div key={b.id} className="p-3.5 rounded-xl bg-gray-950/60 border border-gray-800 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-sm">{b.clientName}</p>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border ${statusBadge(b.status)}`}>{statusLabel(b.status)}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {serviceOf(b.serviceId).name} · {b.time} · {b.clientPhone}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {b.status === "pending" && (
+                        <>
+                          <button onClick={() => updateBookingStatus(b.id, "confirmed")} className="text-xs font-semibold text-green-400 hover:text-green-300">
+                            Confirmar
+                          </button>
+                          <button onClick={() => updateBookingStatus(b.id, "cancelled")} className="text-xs font-semibold text-red-400 hover:text-red-300">
+                            Cancelar
+                          </button>
+                        </>
+                      )}
+                      {b.status === "confirmed" && (
+                        <>
+                          <button onClick={() => updateBookingStatus(b.id, "completed")} className="text-xs font-semibold text-blue-400 hover:text-blue-300">
+                            Concluir
+                          </button>
+                          <button onClick={() => updateBookingStatus(b.id, "cancelled")} className="text-xs font-semibold text-red-400 hover:text-red-300">
+                            Cancelar
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {adminView === "configuracoes" && (
+            <div className="space-y-6 max-w-2xl">
+              <div>
+                <h4 className="font-semibold text-base mb-3">Identidade da barbearia</h4>
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-gray-950/60 border border-gray-800">
+                  <div className="w-10 h-10 rounded-lg" style={{ backgroundColor: tenant.primaryColor }} />
+                  <div className="w-10 h-10 rounded-lg" style={{ backgroundColor: tenant.secondaryColor }} />
+                  <div className="text-xs text-gray-400">
+                    <p>Cor primária: {tenant.primaryColor}</p>
+                    <p>Cor secundária: {tenant.secondaryColor}</p>
+                  </div>
+                  <span className="ml-auto text-xs px-2.5 py-1 rounded-full bg-gray-800 text-gray-300 flex items-center gap-1">
+                    <Crown size={11} /> Plano {PLAN_LABEL[tenant.plan]}
+                  </span>
                 </div>
               </div>
-            )}
 
-            {adminView === "agendamentos" && (
-              <div className="space-y-3">
-                <h4 className="font-semibold text-lg flex items-center gap-2">
-                  <Calendar size={18} className="text-amber-400" />
-                  Todos os agendamentos
-                </h4>
-                <BookingTable
-                  rows={adminBookings}
-                  onConfirm={(id) => setAdminStatus(id, "Confirmado")}
-                  onCancel={(id) => setAdminStatus(id, "Cancelado")}
-                />
-              </div>
-            )}
-
-            {adminView === "barbeiros" && (
-              <div className="space-y-3">
-                <h4 className="font-semibold text-lg flex items-center gap-2">
-                  <Users size={18} className="text-amber-400" />
-                  Equipa
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {BARBERS.map((b) => {
-                    const count = adminBookings.filter((bk) => bk.barberId === b.id && bk.status !== "Cancelado").length;
+              <div>
+                <h4 className="font-semibold text-base mb-3">Horário de funcionamento</h4>
+                <div className="space-y-1.5">
+                  {DAY_ORDER.map((d) => {
+                    const dh = tenant.businessHours[d];
                     return (
-                      <div key={b.id} className="p-4 rounded-xl bg-gray-950/60 border border-gray-800 space-y-2">
+                      <div key={d} className="flex items-center justify-between p-2.5 rounded-lg bg-gray-950/60 border border-gray-800 text-sm">
+                        <span className="text-gray-300">{DAY_LABEL[d]}</span>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-yellow-700 flex items-center justify-center font-bold text-black shrink-0">
-                            {b.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-sm truncate">{b.name}</p>
-                            <p className="text-xs text-gray-500 truncate">{b.specialty}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-xs pt-1 border-t border-gray-800">
-                          <span className="flex items-center gap-1 text-amber-300">
-                            <Star size={11} className="fill-amber-300" />
-                            {b.rating}
+                          <span className={dh.closed ? "text-gray-600" : "text-gray-400"}>
+                            {dh.closed ? "Fechado" : `${dh.open} – ${dh.close}`}
                           </span>
-                          <span className="text-gray-500">{count} agendamentos hoje</span>
+                          <button onClick={() => toggleDayClosed(d)} className="text-xs font-medium" style={{ color: tenant.primaryColor }}>
+                            {dh.closed ? "Reabrir" : "Fechar"}
+                          </button>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               </div>
-            )}
 
-            {adminView === "servicos" && (
-              <div className="space-y-3">
-                <h4 className="font-semibold text-lg flex items-center gap-2">
-                  <Scissors size={18} className="text-amber-400" />
-                  Serviços e preços
-                </h4>
-                <div className="space-y-2">
-                  {SERVICES.map((s) => (
-                    <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-950/60 border border-gray-800 text-sm">
-                      <div>
-                        <p className="font-semibold">{s.name}</p>
-                        <p className="text-xs text-gray-500">{s.duration} min</p>
-                      </div>
-                      <span className="font-semibold text-amber-400">{formatKz(s.price)}</span>
+              <div>
+                <h4 className="font-semibold text-base mb-3">Serviços</h4>
+                <div className="space-y-1.5">
+                  {tenant.services.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between p-2.5 rounded-lg bg-gray-950/60 border border-gray-800 text-sm">
+                      <span>
+                        {s.name} <span className="text-gray-500">· {formatKz(s.price)}</span>
+                      </span>
+                      <button
+                        onClick={() => toggleServiceActive(s.id)}
+                        className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.active ? "bg-green-500/15 text-green-300" : "bg-gray-800 text-gray-500"}`}
+                      >
+                        {s.active ? "Ativo" : "Inativo"}
+                      </button>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-
-            {adminView === "relatorios" && (
-              <ReportsView adminBookings={adminBookings} />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* modal de login */}
-      {showLogin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setShowLogin(false)}>
-          <div
-            className="w-full max-w-sm rounded-2xl border border-gray-800 bg-gray-900 p-5 space-y-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-base">Entrar na sua conta</h4>
-              <button onClick={() => setShowLogin(false)} className="text-gray-500 hover:text-white">
-                <X size={18} />
+      {/* ---------------------------------------------------------- */}
+      {/* SUPER-ADMIN DA PLATAFORMA                                   */}
+      {/* ---------------------------------------------------------- */}
+      {role === "superadmin" && (
+        <div className="p-4 sm:p-6 space-y-6 min-h-[440px]">
+          <div className="flex items-center gap-1 bg-gray-950/60 border border-gray-800 rounded-full p-1 w-fit overflow-x-auto">
+            {(
+              [
+                { key: "geral", label: "Visão geral", icon: <LayoutDashboard size={13} /> },
+                { key: "barbearias", label: `Barbearias (${tenants.length})`, icon: <Building2 size={13} /> },
+                { key: "convites", label: "Convites", icon: <Mail size={13} /> },
+              ] as { key: SuperAdminView; label: string; icon: React.ReactNode }[]
+            ).map((v) => (
+              <button
+                key={v.key}
+                onClick={() => setSuperView(v.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+                  superView === v.key ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-black" : "text-gray-400"
+                }`}
+              >
+                {v.icon}
+                {v.label}
               </button>
+            ))}
+          </div>
+
+          {superView === "geral" && (
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <SuperStat icon={<Building2 size={20} />} label="Total Barbearias" value={tenants.length} color="#d4af37" />
+              <SuperStat icon={<Sparkles size={20} />} label="Ativas" value={activeTenants} color="#22c55e" />
+              <SuperStat icon={<Users size={20} />} label="Usuários" value={totalUsers} color="#3b82f6" />
+              <SuperStat icon={<Calendar size={20} />} label="Agendamentos" value={totalBookings} color="#a855f7" />
+              <SuperStat icon={<Clock size={20} />} label="Pendentes" value={pendingBookings} color="#eab308" />
             </div>
+          )}
+
+          {superView === "barbearias" && (
             <div className="space-y-3">
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-wide">Nome</label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="O seu nome"
-                  className="mt-1 w-full rounded-lg bg-gray-950 border border-gray-700 px-3 py-2 text-sm text-white focus:border-amber-400 outline-none"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-wide">Email</label>
-                <input
-                  type="email"
-                  placeholder="voce@email.com"
-                  className="mt-1 w-full rounded-lg bg-gray-950 border border-gray-700 px-3 py-2 text-sm text-white focus:border-amber-400 outline-none"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-wide">Senha</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="mt-1 w-full rounded-lg bg-gray-950 border border-gray-700 px-3 py-2 text-sm text-white focus:border-amber-400 outline-none"
-                />
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                setLoggedIn(true);
-                setShowLogin(false);
-              }}
-              className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-semibold hover:opacity-90 transition-opacity"
-            >
-              <LogIn size={16} />
-              Entrar (demo)
-            </button>
-            <p className="text-[11px] text-gray-500 text-center">Simulação — nenhuma credencial é validada.</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Wizard de agendamento                                               */
-/* ------------------------------------------------------------------ */
-
-function BookingWizard({
-  step,
-  setStep,
-  chosenService,
-  setChosenService,
-  chosenBarber,
-  setChosenBarber,
-  chosenDay,
-  setChosenDay,
-  chosenTime,
-  setChosenTime,
-  days,
-  slots,
-  dayLabel,
-  onConfirm,
-  onFinish,
-}: {
-  step: WizardStep;
-  setStep: (s: WizardStep) => void;
-  chosenService: string | null;
-  setChosenService: (s: string) => void;
-  chosenBarber: string | null;
-  setChosenBarber: (b: string) => void;
-  chosenDay: string;
-  setChosenDay: (d: string) => void;
-  chosenTime: string | null;
-  setChosenTime: (t: string) => void;
-  days: { key: string; label: string; sub: string }[];
-  slots: { time: string; available: boolean }[];
-  dayLabel: string;
-  onConfirm: () => void;
-  onFinish: () => void;
-}) {
-  const steps: { key: WizardStep; label: string }[] = [
-    { key: "servico", label: "Serviço" },
-    { key: "barbeiro", label: "Barbeiro" },
-    { key: "horario", label: "Horário" },
-    { key: "confirmado", label: "Confirmação" },
-  ];
-  const currentIndex = steps.findIndex((s) => s.key === step);
-
-  return (
-    <div className="space-y-5">
-      {step !== "confirmado" && (
-        <div className="flex items-center gap-1.5">
-          {steps.slice(0, 3).map((s, i) => (
-            <div key={s.key} className="flex items-center gap-1.5 flex-1">
-              <div
-                className={`h-1.5 flex-1 rounded-full ${
-                  i <= currentIndex ? "bg-gradient-to-r from-amber-500 to-yellow-600" : "bg-gray-800"
-                }`}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {step === "servico" && (
-        <div className="space-y-3">
-          <h4 className="font-semibold text-lg">1. Escolha o serviço</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {SERVICES.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => {
-                  setChosenService(s.id);
-                  setStep("barbeiro");
-                }}
-                className={`text-left p-4 rounded-xl border transition-colors ${
-                  chosenService === s.id
-                    ? "border-amber-400 bg-amber-500/10"
-                    : "border-gray-800 bg-gray-950/60 hover:border-gray-700"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold text-sm">{s.name}</p>
-                  <span className="text-amber-400 font-bold text-sm">{formatKz(s.price)}</span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">{s.desc}</p>
-                <span className="text-[11px] text-gray-500 flex items-center gap-1 mt-2">
-                  <Clock size={11} />
-                  {s.duration} min
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {step === "barbeiro" && (
-        <div className="space-y-3">
-          <button onClick={() => setStep("servico")} className="flex items-center gap-1 text-xs text-gray-500 hover:text-white">
-            <ChevronLeft size={13} />
-            Voltar
-          </button>
-          <h4 className="font-semibold text-lg">2. Escolha o barbeiro</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {BARBERS.map((b) => (
-              <button
-                key={b.id}
-                onClick={() => {
-                  setChosenBarber(b.id);
-                  setStep("horario");
-                }}
-                className={`text-left p-4 rounded-xl border transition-colors ${
-                  chosenBarber === b.id
-                    ? "border-amber-400 bg-amber-500/10"
-                    : "border-gray-800 bg-gray-950/60 hover:border-gray-700"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-yellow-700 flex items-center justify-center font-bold text-black shrink-0">
-                    {b.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-sm">{b.name}</p>
-                    <p className="text-xs text-gray-500">{b.specialty}</p>
+              {tenants.map((t) => (
+                <div key={t.id} className="bg-gray-950/60 border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-colors">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap mb-2">
+                        <h3 className="text-lg font-bold">{t.name}</h3>
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${t.isActive ? "bg-green-500/15 text-green-400 border-green-500/40" : "bg-red-500/15 text-red-400 border-red-500/40"}`}>
+                          {t.isActive ? "Ativa" : "Inativa"}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                        <div>
+                          <p className="text-gray-500">Slug</p>
+                          <p className="font-mono" style={{ color: t.primaryColor }}>
+                            {t.slug}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Usuários</p>
+                          <p className="text-white font-bold">
+                            {t.team.length} / {t.maxUsers}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Agendamentos</p>
+                          <p className="text-white font-bold">{bookings.filter((b) => b.tenantId === t.id).length}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Plano</p>
+                          <p className="text-white font-bold uppercase">{t.plan}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => toggleTenantActive(t.id)}
+                      className={`p-2.5 rounded-lg self-start sm:self-center transition-colors ${
+                        t.isActive ? "bg-yellow-500/15 hover:bg-yellow-500/25 text-yellow-400" : "bg-green-500/15 hover:bg-green-500/25 text-green-400"
+                      }`}
+                    >
+                      {t.isActive ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
-                <span className="flex items-center gap-1 text-[11px] text-amber-300 mt-2">
-                  <Star size={11} className="fill-amber-300" />
-                  {b.rating} · {b.years} anos de experiência
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+              ))}
+            </div>
+          )}
 
-      {step === "horario" && (
-        <div className="space-y-3">
-          <button onClick={() => setStep("barbeiro")} className="flex items-center gap-1 text-xs text-gray-500 hover:text-white">
-            <ChevronLeft size={13} />
-            Voltar
-          </button>
-          <h4 className="font-semibold text-lg">3. Escolha o dia e a hora</h4>
-          <div className="flex gap-2">
-            {days.map((d) => (
-              <button
-                key={d.key}
-                onClick={() => {
-                  setChosenDay(d.key);
-                  setChosenTime("");
-                }}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors ${
-                  chosenDay === d.key
-                    ? "border-amber-400 bg-amber-500/10 text-amber-300"
-                    : "border-gray-800 text-gray-400 hover:border-gray-700"
-                }`}
-              >
-                {d.label}
-                <br />
-                <span className="font-normal text-[10px] text-gray-500">{d.sub}</span>
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-gray-500 flex items-center gap-1">
-            <Clock size={12} />
-            Horários de {dayLabel.toLowerCase()} com {chosenBarber ? BARBERS.find((b) => b.id === chosenBarber)?.name : "o barbeiro"}
-          </p>
-          <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-            {slots.map((s) => (
-              <button
-                key={s.time}
-                disabled={!s.available}
-                onClick={() => setChosenTime(s.time)}
-                className={`px-2 py-2 rounded-lg text-xs font-semibold border transition-colors ${
-                  !s.available
-                    ? "border-gray-900 bg-gray-950 text-gray-700 cursor-not-allowed line-through"
-                    : chosenTime === s.time
-                    ? "border-amber-400 bg-amber-500/10 text-amber-300"
-                    : "border-gray-800 text-gray-300 hover:border-gray-700"
-                }`}
-              >
-                {s.time}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={onConfirm}
-            disabled={!chosenTime}
-            className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
-          >
-            <CheckCircle2 size={16} />
-            Confirmar agendamento
-          </button>
-        </div>
-      )}
-
-      {step === "confirmado" && chosenService && chosenBarber && chosenTime && (
-        <div className="max-w-sm mx-auto text-center py-6 space-y-4">
-          <div className="w-14 h-14 rounded-full bg-green-500/15 flex items-center justify-center mx-auto">
-            <CheckCircle2 size={28} className="text-green-400" />
-          </div>
-          <h4 className="font-semibold text-lg">Agendamento confirmado!</h4>
-          <div className="text-left space-y-2 p-4 rounded-xl bg-gray-950/60 border border-gray-800">
-            <Row label="Serviço" value={serviceOf(chosenService).name} />
-            <Row label="Barbeiro" value={barberOf(chosenBarber).name} />
-            <Row label="Data" value={dayLabel} />
-            <Row label="Hora" value={chosenTime} />
-            <Row label="Valor" value={formatKz(serviceOf(chosenService).price)} highlight />
-          </div>
-          <button
-            onClick={onFinish}
-            className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-semibold hover:opacity-90 transition-opacity"
-          >
-            Ver meus agendamentos
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Peças reutilizáveis                                                 */
-/* ------------------------------------------------------------------ */
-
-function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className="flex items-center justify-between text-sm">
-      <span className="text-gray-500">{label}</span>
-      <span className={highlight ? "font-semibold text-amber-400" : "text-gray-200"}>{value}</span>
-    </div>
-  );
-}
-
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="p-3 rounded-lg bg-gray-950/60 border border-gray-800">
-      <div className="flex items-center gap-1.5 mb-1">
-        {icon}
-        <p className="text-[11px] text-gray-400 uppercase tracking-wide">{label}</p>
-      </div>
-      <p className="text-lg font-bold text-white">{value}</p>
-    </div>
-  );
-}
-
-function BookingTable({
-  rows,
-  onConfirm,
-  onCancel,
-}: {
-  rows: Booking[];
-  onConfirm: (id: string) => void;
-  onCancel: (id: string) => void;
-}) {
-  if (rows.length === 0) {
-    return <p className="text-sm text-gray-500">Nenhum agendamento encontrado.</p>;
-  }
-  return (
-    <div className="space-y-2">
-      {rows.map((b) => {
-        const svc = serviceOf(b.serviceId);
-        const brb = barberOf(b.barberId);
-        return (
-          <div key={b.id} className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-950/60 border border-gray-800 text-sm">
-            <div className="min-w-0">
-              <p className="font-semibold truncate">{b.client}</p>
-              <p className="text-xs text-gray-500 truncate">
-                {svc.name} · {brb.name} · {b.date}, {b.time}
+          {superView === "convites" && (
+            <div className="max-w-lg space-y-4">
+              <p className="text-sm text-gray-400">
+                O onboarding de novas barbearias e de novos utilizadores dentro de uma barbearia existente acontece
+                por token de convite — sem isso, ninguém consegue criar uma conta na plataforma.
               </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <span className={`text-[10px] px-2 py-0.5 rounded-full ${statusBadge(b.status)}`}>{b.status}</span>
-              {b.status === "Pendente" && (
-                <button onClick={() => onConfirm(b.id)} className="text-green-400 hover:text-green-300" title="Confirmar">
-                  <CheckCircle2 size={16} />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setInviteMode("nova-barbearia")}
+                  className={`flex-1 py-2 rounded-xl text-xs font-semibold border ${inviteMode === "nova-barbearia" ? "border-amber-500 bg-amber-500/10 text-amber-300" : "border-gray-800 text-gray-400"}`}
+                >
+                  Nova barbearia
                 </button>
-              )}
-              {b.status !== "Cancelado" && (
-                <button onClick={() => onCancel(b.id)} className="text-red-400 hover:text-red-300" title="Cancelar">
-                  <XCircle size={16} />
+                <button
+                  onClick={() => setInviteMode("novo-usuario")}
+                  className={`flex-1 py-2 rounded-xl text-xs font-semibold border ${inviteMode === "novo-usuario" ? "border-amber-500 bg-amber-500/10 text-amber-300" : "border-gray-800 text-gray-400"}`}
+                >
+                  Novo utilizador numa barbearia existente
                 </button>
+              </div>
+              <button
+                onClick={generateInvite}
+                className="w-full py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-semibold text-sm hover:opacity-90"
+              >
+                Gerar convite
+              </button>
+              {generatedInvite && (
+                <div className="p-4 rounded-xl bg-gray-950/60 border border-gray-800 space-y-2">
+                  <div className="flex items-center gap-2 bg-gray-900 rounded-lg p-3">
+                    <span className="flex-1 text-sm font-mono break-all text-amber-300">{generatedInvite.token}</span>
+                    <button
+                      onClick={() => {
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 1500);
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-400"
+                    >
+                      {copied ? <Check size={14} /> : <Copy size={14} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500">Expira em: {generatedInvite.expiresAt} · uso único</p>
+                </div>
               )}
             </div>
-          </div>
-        );
-      })}
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function ReportsView({ adminBookings }: { adminBookings: Booking[] }) {
-  const weekDays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-  const rand = seededRandom("barbearia-relatorios");
-  const revenue = weekDays.map((d) => ({ day: d, value: Math.round(8000 + rand() * 22000) }));
-  const maxRevenue = Math.max(...revenue.map((r) => r.value));
+/* ------------------------------------------------------------------ */
+/* Subcomponentes                                                       */
+/* ------------------------------------------------------------------ */
 
-  const byService = SERVICES.map((s) => {
-    const count = adminBookings.filter((b) => b.serviceId === s.id && b.status !== "Cancelado").length;
-    return { ...s, count };
-  });
-  const totalCount = byService.reduce((sum, s) => sum + s.count, 0) || 1;
-
+function AdminStat({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
   return (
-    <div className="space-y-6">
-      <h4 className="font-semibold text-lg flex items-center gap-2">
-        <BarChart3 size={18} className="text-amber-400" />
-        Relatórios da semana
-      </h4>
-
-      <div className="space-y-2">
-        <p className="text-xs text-gray-500 uppercase tracking-wide">Receita por dia</p>
-        <div className="flex items-end gap-2 h-32 p-3 rounded-xl bg-gray-950/60 border border-gray-800">
-          {revenue.map((r) => (
-            <div key={r.day} className="flex-1 flex flex-col items-center gap-1.5">
-              <div
-                className="w-full rounded-t-md bg-gradient-to-t from-amber-600 to-yellow-400"
-                style={{ height: `${Math.max(8, (r.value / maxRevenue) * 88)}px` }}
-                title={formatKz(r.value)}
-              />
-              <span className="text-[10px] text-gray-500">{r.day}</span>
-            </div>
-          ))}
+    <div className="bg-black/40 backdrop-blur-lg border border-white/10 rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-3">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center border" style={{ backgroundColor: `${color}20`, borderColor: `${color}40`, color }}>
+          {icon}
         </div>
+        <span className="text-xl font-black" style={{ color }}>
+          {value}
+        </span>
       </div>
+      <p className="text-white/70 text-sm font-semibold">{label}</p>
+    </div>
+  );
+}
 
-      <div className="space-y-2">
-        <p className="text-xs text-gray-500 uppercase tracking-wide">Serviços mais procurados (hoje)</p>
-        <div className="space-y-2">
-          {byService.map((s) => {
-            const pct = Math.round((s.count / totalCount) * 100);
-            return (
-              <div key={s.id} className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-300">{s.name}</span>
-                  <span className="text-gray-500">{s.count} marcações</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-600" style={{ width: `${pct}%` }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+function SuperStat({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
+  return (
+    <div className="bg-black/40 backdrop-blur-lg border border-white/10 rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-3" style={{ color }}>
+        {icon}
+        <span className="text-2xl sm:text-3xl font-black">{value}</span>
       </div>
+      <p className="text-white/70 text-sm font-semibold">{label}</p>
     </div>
   );
 }

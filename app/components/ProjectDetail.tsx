@@ -9,12 +9,14 @@ import QrCodePayDemo from "./demos/QrCodePayDemo";
 import CrfDeskDemo from "./demos/CrfDeskDemo";
 import BoardGovDemo from "./demos/BoardGovDemo";
 import BarbeariaDemo from "./demos/BarbeariaDemo";
+import ArgPackDemo from "./demos/ArgPackDemo";
 
 const DEMO_COMPONENTS: Record<string, React.ComponentType> = {
   qrcodepay: QrCodePayDemo,
   crfdesk: CrfDeskDemo,
   "boardgov-ao": BoardGovDemo,
   barbearia: BarbeariaDemo,
+  argpack: ArgPackDemo,
 };
 
 export default function ProjectDetail({ project }: { project: ProjectData }) {

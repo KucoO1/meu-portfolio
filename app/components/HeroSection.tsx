@@ -48,7 +48,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
           transition={{ delay: 0.5, duration: 0.7 }}
           className="mt-4 leading-relaxed text-gray-400 text-base sm:text-base" // Aumentado para text-base no mobile
         >
-          Com mais de 5 anos de experiência, especializo-me em criar aplicações web e mobile performáticas, escaláveis e com foco na experiência do usuário.
+          Especializo-me em criar aplicações web e mobile performáticas, escaláveis e com foco na experiência do usuário.
         </motion.p>
 
         <motion.div
