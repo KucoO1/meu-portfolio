@@ -63,6 +63,16 @@ export default function Home() {
       github: "",
       featured: true
     },
+     {
+      slug: "argpack",
+      title: "ArgPack",
+      description: "plataforma para facilitar a exportação de produtos na argentina ",
+      technologies: ["Next.js","Node.js","Firebase"],
+      image: "/images/argpack.jpg",
+      link: "https://argpack-frontend.vercel.app/",
+      github: "https://github.com/KucoO1/argpack-frontend",
+      featured: true
+    },
     {
       slug: "qrcodepay",
       title: "QrCodePay",
@@ -82,13 +92,14 @@ export default function Home() {
       github: "https://github.com/KucoO1/ecommerce"
     },
     {
-      slug: "orbital",
-      title: "Projeto orbita",
-      description: "Plataforma completa de e-commerce com painel administrativo e integração com pagamentos.",
-      technologies: ["Next.js", "Node.js", "MongoDB"],
-      image: "/images/orbita.jpg",
-      link: "https://orbita-mocha-nine.vercel.app/",
-      github: "https://github.com/KucoO1/orbita"
+      slug: "barbearia",
+      title: "Barbearia",
+      description: "Plataforma para fazer agendamentos em uma barbearia com painel administrativo e integração com pagamentos.",
+      technologies: ["Typescript", "Next.js"],
+      image: "/images/barbearia.jpg",
+      link: "https://barbearia-sepia-eight.vercel.app/",
+      github: "https://github.com/KucoO1/barbearia",
+      featured: true
     },
     {
       slug: "gestao-financeira",
@@ -98,6 +109,15 @@ export default function Home() {
       image: "/images/gestao-financeira.jpg",
       link: "https://financas-pessoais-frontend.vercel.app/",
       github: "https://github.com/KucoO1/financas-pessoais-frontend"
+    },
+    {
+      slug: "orbital",
+      title: "Projeto orbita",
+      description: "Plataforma completa de e-commerce com painel administrativo e integração com pagamentos.",
+      technologies: ["Next.js", "Node.js", "MongoDB"],
+      image: "/images/orbita.jpg",
+      link: "https://orbita-mocha-nine.vercel.app/",
+      github: "https://github.com/KucoO1/orbita"
     },
     {
       slug: "neoxia",
@@ -126,15 +146,7 @@ export default function Home() {
       link: "https://landing-page-hotmart-nine.vercel.app/",
       github: "https://github.com/KucoO1/landing-page-hotmart"
     },
-    {
-      slug: "argpack",
-      title: "ArgPack",
-      description: "plataforma para facilitar a exportação de produtos na argentina ",
-      technologies: ["Next.js","Node.js","Firebase"],
-      image: "/images/argpack.jpg",
-      link: "https://argpack-frontend.vercel.app/",
-      github: "https://github.com/KucoO1/argpack-frontend"
-    },
+    
     {
       slug: "games-hub",
       title: "Games Hub",
@@ -152,15 +164,6 @@ export default function Home() {
       image: "/images/primeFlix.jpg",
       link: "https://primeflix-one-chi.vercel.app/",
       github: "https://github.com/KucoO1/primeFlix"
-    },
-    {
-      slug: "barbearia",
-      title: "Barbearia",
-      description: "Plataforma para fazer agendamentos em uma barbearia com painel administrativo e integração com pagamentos.",
-      technologies: ["Typescript", "Next.js"],
-      image: "/images/barbearia.jpg",
-      link: "https://barbearia-sepia-eight.vercel.app/",
-      github: "https://github.com/KucoO1/barbearia"
     }
    
   ];
