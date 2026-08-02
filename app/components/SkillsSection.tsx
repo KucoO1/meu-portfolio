@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useLanguage } from "../i18n/LanguageContext";
 
 interface Skill {
   name: string;
@@ -29,6 +30,7 @@ const skills: Skill[] = [
 ];
 
 export default function SkillsSection({ darkMode }: SkillsSectionProps) {
+  const { t } = useLanguage();
   return (
     <section id="skills" className="py-16 md:py-24 px-4 sm:px-6 text-center relative z-10">
       <div className="container mx-auto">
@@ -39,7 +41,7 @@ export default function SkillsSection({ darkMode }: SkillsSectionProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="text-3xl sm:text-4xl font-bold mb-4 text-yellow-400"
         >
-          Minhas Skills
+          {t.skills.title}
         </motion.h2>
         
         <motion.p 
@@ -49,7 +51,7 @@ export default function SkillsSection({ darkMode }: SkillsSectionProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="mb-8 sm:mb-12 max-w-2xl mx-auto text-lg"
         >
-          Tecnologias e ferramentas que utilizo para transformar ideias em realidade
+          {t.skills.subtitle}
         </motion.p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
@@ -65,7 +67,7 @@ export default function SkillsSection({ darkMode }: SkillsSectionProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="mt-8 sm:mt-12 text-lg sm:text-xl italic"
         >
-          E Muito mais +
+          {t.skills.andMore}
         </motion.p>
       </div>
     </section>

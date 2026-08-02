@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ExternalLink, Github, FileText, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "../i18n/LanguageContext";
 
 interface Project {
   slug: string;
@@ -22,6 +23,7 @@ interface ProjectsSectionProps {
 }
 
 export default function ProjectsSection({ darkMode, projects }: ProjectsSectionProps) {
+  const { t } = useLanguage();
   return (
     <section id="projetos" className="py-16 md:py-24 px-4 sm:px-6 text-center relative z-10">
       <div className="container mx-auto">
@@ -32,7 +34,7 @@ export default function ProjectsSection({ darkMode, projects }: ProjectsSectionP
           viewport={{ once: true, margin: "-100px" }}
           className="text-3xl sm:text-4xl font-bold mb-4 text-yellow-400"
         >
-          Meus Projetos
+          {t.projectsSection.title}
         </motion.h2>
 
         <motion.p
@@ -42,7 +44,7 @@ export default function ProjectsSection({ darkMode, projects }: ProjectsSectionP
           viewport={{ once: true, margin: "-100px" }}
           className="mb-8 sm:mb-12 max-w-2xl mx-auto text-lg"
         >
-          Confira alguns dos meus trabalhos mais recentes e representativos
+          {t.projectsSection.subtitle}
         </motion.p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -64,6 +66,7 @@ function ProjectCard({
   index: number;
   darkMode: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -99,7 +102,7 @@ function ProjectCard({
           {project.featured && (
             <div className="absolute top-3 left-3 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-yellow-400 to-amber-600 text-gray-950 text-[10px] sm:text-xs font-bold uppercase tracking-wide shadow-lg">
               <Star size={11} className="fill-gray-950" />
-              Destaque
+              {t.projectsSection.featured}
             </div>
           )}
           <div className="absolute bottom-4 left-0 right-0 z-20 text-center px-4">
@@ -128,7 +131,7 @@ function ProjectCard({
             className="flex items-center gap-1 sm:gap-2 hover:text-yellow-400 transition-colors"
           >
             <ExternalLink size={14} />
-            Ver projeto
+            {t.projectsSection.viewProject}
           </a>
           {project.github && (
             <a
@@ -138,7 +141,7 @@ function ProjectCard({
               className="flex items-center gap-1 sm:gap-2 hover:text-yellow-400 transition-colors"
             >
               <Github size={14} />
-              Código
+              {t.projectsSection.code}
             </a>
           )}
         </div>
@@ -148,7 +151,7 @@ function ProjectCard({
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-yellow-400/10 text-yellow-400 text-xs sm:text-sm font-medium hover:bg-yellow-400/20 transition-colors"
         >
           <FileText size={14} />
-          Detalhes técnicos do projeto
+          {t.projectsSection.technicalDetails}
         </Link>
       </div>
     </motion.div>

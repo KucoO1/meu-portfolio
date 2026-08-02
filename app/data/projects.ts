@@ -1166,3 +1166,36 @@ export function getProjectBySlug(slug: string): ProjectData | undefined {
 export function getAllSlugs(): string[] {
   return projects.map((p) => p.slug);
 }
+
+export function mergeProjectTranslation(
+  project: ProjectData,
+  translation:
+    | {
+        title: string;
+        tagline: string;
+        overview: string;
+        problem: string;
+        stack: StackGroup[];
+        architecture: ContentBlock[];
+        backend: ContentBlock[];
+        features: string[];
+        challenges: ContentBlock[];
+        learnings: string[];
+      }
+    | undefined
+): ProjectData {
+  if (!translation) return project;
+  return {
+    ...project,
+    title: translation.title,
+    tagline: translation.tagline,
+    overview: translation.overview,
+    problem: translation.problem,
+    stack: translation.stack,
+    architecture: translation.architecture,
+    backend: translation.backend,
+    features: translation.features,
+    challenges: translation.challenges,
+    learnings: translation.learnings,
+  };
+}

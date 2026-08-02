@@ -1,12 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "../i18n/LanguageContext";
 
 interface AboutSectionProps {
   darkMode: boolean;
 }
 
 export default function AboutSection({ darkMode }: AboutSectionProps) {
+  const { t } = useLanguage();
   return (
     <section id="sobre" className="py-16 md:py-24 px-4 sm:px-6 relative z-10">
       <div className="container mx-auto">
@@ -17,7 +19,7 @@ export default function AboutSection({ darkMode }: AboutSectionProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="text-3xl sm:text-4xl font-bold mb-8 text-center text-yellow-400"
         >
-          Sobre Mim
+          {t.about.title}
         </motion.h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
@@ -45,39 +47,35 @@ export default function AboutSection({ darkMode }: AboutSectionProps) {
             viewport={{ once: true, margin: "-50px" }}
             className="space-y-6"
           >
-            <h3 className="text-2xl font-semibold text-yellow-400">Nataniel Oliveira</h3>
+            <h3 className="text-2xl font-semibold text-yellow-400">{t.about.name}</h3>
             
             <p className="text-lg leading-relaxed">
-              Sou um desenvolvedor Fullstack apaixonado por tecnologia e inovação. 
-              Com mais de 5 anos de experiência, tenho dedicado minha carreira a criar 
-              soluções digitais que fazem a diferença na vida das pessoas.
+              {t.about.paragraph1}
             </p>
             
             <p className="text-lg leading-relaxed">
-              Minha expertise abrange desde o desenvolvimento front-end com React e Next.js 
-              até o back-end com Node.js e diversas bases de dados. Acredito que a tecnologia 
-              deve ser não apenas funcional, mas também intuitiva e agradável de usar.
+              {t.about.paragraph2}
             </p>
             
             <div className="grid grid-cols-2 gap-4 mt-8">
               <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} text-center`}>
                 <div className="text-2xl font-bold text-yellow-400">5+</div>
-                <div className="text-sm">Anos de Experiência</div>
+                <div className="text-sm">{t.about.stats.experience}</div>
               </div>
               
               <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} text-center`}>
                 <div className="text-2xl font-bold text-yellow-400">50+</div>
-                <div className="text-sm">Projetos Concluídos</div>
+                <div className="text-sm">{t.about.stats.projects}</div>
               </div>
               
               <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} text-center`}>
                 <div className="text-2xl font-bold text-yellow-400">20+</div>
-                <div className="text-sm">Clientes Satisfeitos</div>
+                <div className="text-sm">{t.about.stats.clients}</div>
               </div>
               
               <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} text-center`}>
                 <div className="text-2xl font-bold text-yellow-400">100%</div>
-                <div className="text-sm">Dedicado</div>
+                <div className="text-sm">{t.about.stats.dedication}</div>
               </div>
             </div>
           </motion.div>

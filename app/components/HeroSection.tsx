@@ -3,14 +3,17 @@
 import { motion } from "framer-motion";
 import { ArrowDownCircle } from "lucide-react";
 import Image from "next/image";
+import { useLanguage } from "../i18n/LanguageContext";
 
 interface HeroSectionProps {
   darkMode: boolean;
   textIndex: number;
-  texts: string[];
 }
 
-export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionProps) {
+export default function HeroSection({ darkMode, textIndex }: HeroSectionProps) {
+  const { t } = useLanguage();
+  const texts = t.hero.roles;
+
   return (
     <section id="hero" className="relative flex flex-col md:flex-row items-center justify-center min-h-screen text-center md:text-left px-4 md:px-6 gap-6 md:gap-12 z-10 pt-16 md:pt-20">
       <div className="max-w-xl order-2 md:order-1">
@@ -20,7 +23,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
           transition={{ duration: 0.7 }}
           className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight" // Aumentado para text-4xl no mobile
         >
-          Olá, eu sou <span className="text-yellow-400">Nataniel Oliveira,</span><br />
+          {t.hero.greeting} <span className="text-yellow-400">{t.hero.name}</span><br />
           <motion.span
             key={textIndex}
             initial={{ opacity: 0 }}
@@ -39,7 +42,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
           transition={{ delay: 0.3, duration: 0.7 }}
           className="mt-4 text-lg sm:text-xl" // Aumentado para text-lg no mobile
         >
-          Desenvolvedor <span className="text-yellow-400">Fullstack</span> apaixonado por criar soluções digitais modernas e impactantes.
+          {t.hero.subtitle} <span className="text-yellow-400">{t.hero.subtitleHighlight}</span> {t.hero.description}
         </motion.p>
 
         <motion.p
@@ -48,7 +51,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
           transition={{ delay: 0.5, duration: 0.7 }}
           className="mt-4 leading-relaxed text-gray-400 text-base sm:text-base" // Aumentado para text-base no mobile
         >
-          Especializo-me em criar aplicações web e mobile performáticas, escaláveis e com foco na experiência do usuário.
+          {t.hero.specialization}
         </motion.p>
 
         <motion.div
@@ -58,10 +61,10 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
           className="flex flex-col sm:flex-row gap-4 mt-8 justify-center md:justify-start"
         >
           <button className="bg-yellow-400 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-500 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
-            Ver Projetos
+            {t.hero.ctaProjects}
           </button>
           <button className={`border ${darkMode ? 'border-yellow-400 text-yellow-400' : 'border-gray-800 text-gray-800'} px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg`}>
-            Entrar em Contato
+            {t.hero.ctaContact}
           </button>
         </motion.div>
       </div>
@@ -76,7 +79,7 @@ export default function HeroSection({ darkMode, textIndex, texts }: HeroSectionP
         <div className="relative w-full h-full rounded-2xl overflow-hidden border-4 border-yellow-400 shadow-xl group-hover:scale-105 transition-transform duration-300">
           <Image
             src="/images/nataniel2.jpeg"
-            alt="Foto de perfil de Nataniel Oliveira"
+            alt={t.hero.imageAlt}
             fill
             className="object-cover"
             priority

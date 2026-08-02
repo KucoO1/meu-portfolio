@@ -1,12 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "../i18n/LanguageContext";
 
 interface FooterProps {
   darkMode: boolean;
 }
 
 export default function Footer({ darkMode }: FooterProps) {
+  const { t } = useLanguage();
   return (
     <footer id="contato" className={`py-12 text-center ${darkMode ? 'bg-gray-900/50' : 'bg-gray-100'} relative z-10`}>
       <div className="container mx-auto px-4 sm:px-6">
@@ -17,7 +19,7 @@ export default function Footer({ darkMode }: FooterProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="text-2xl font-bold mb-6 text-yellow-400"
         >
-          Vamos trabalhar juntos?
+          {t.footer.title}
         </motion.h3>
         
         <motion.p 
@@ -27,7 +29,7 @@ export default function Footer({ darkMode }: FooterProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="mb-6 sm:mb-8 max-w-2xl mx-auto text-lg"
         >
-          Estou sempre aberto a discutir novos projetos e oportunidades.
+          {t.footer.subtitle}
         </motion.p>
         
         <motion.button
@@ -39,7 +41,7 @@ export default function Footer({ darkMode }: FooterProps) {
           whileTap={{ scale: 0.95 }}
           className="bg-yellow-400 text-gray-900 px-6 py-3 sm:px-8 sm:py-3 rounded-lg font-semibold hover:bg-yellow-500 transition-all duration-300 shadow-lg hover:shadow-xl"
         >
-          Entrar em Contato
+          {t.footer.cta}
         </motion.button>
         
         <motion.div 
@@ -49,7 +51,7 @@ export default function Footer({ darkMode }: FooterProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="mt-8 sm:mt-12 pt-6 border-t border-gray-700/30"
         >
-          <p>© {new Date().getFullYear()} Nataniel Oliveira. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} Nataniel Oliveira. {t.footer.rights}</p>
         </motion.div>
       </div>
     </footer>

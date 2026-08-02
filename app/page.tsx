@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "./i18n/LanguageContext";
 import Header from "./components/Header";
 import FloatingElements from "./components/FloatingElements";
 import HeroSection from "./components/HeroSection";
@@ -10,10 +11,8 @@ import Footer from "./components/Footer";
 import AboutSection from "./components/AboutSection";
 import ContactSection from "./components/ContactSection";
 
-interface Project {
+interface ProjectBase {
   slug: string;
-  title: string;
-  description: string;
   technologies: string[];
   image: string;
   link: string;
@@ -40,13 +39,12 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [floatingElements, setFloatingElements] = useState<FloatingElement[]>([]);
   
-  const texts = ["Programador", "Desenvolvedor Fullstack", "Criativo"];
-  
-  const projects: Project[] = [
+  const { t } = useLanguage();
+  const texts = t.hero.roles;
+
+  const projectsBase: ProjectBase[] = [
      {
       slug: "boardgov-ao",
-      title: "BoardGov AO",
-      description: "Plataforma multi-tenant de governança corporativa para conselhos de administração angolanos: reuniões, quórum, votações, atas e conformidade BNA. Backend não está publicado — inclui demo interativa.",
       technologies: ["Next.js", "NestJS", "PostgreSQL", "Docker"],
       image: "/images/boardgov.jpg",
       link: "/projetos/boardgov-ao#demo",
@@ -55,8 +53,6 @@ export default function Home() {
     },
     {
       slug: "crfdesk",
-      title: "CRFDesk",
-      description: "Plataforma de screening e compliance para ativos cripto, com scoring de risco explicável e relatórios prontos para reguladores. Backend não está publicado — inclui demo interativa.",
       technologies: ["Next.js", "Node.js", "MongoDB", "Docker"],
       image: "/images/projetos/crfdesk/crfdesk-2.png",
       link: "/projetos/crfdesk#demo",
@@ -65,8 +61,6 @@ export default function Home() {
     },
      {
       slug: "argpack",
-      title: "ArgPack",
-      description: "plataforma para facilitar a exportação de produtos na argentina ",
       technologies: ["Next.js","Node.js","Firebase"],
       image: "/images/argpack.jpg",
       link: "https://argpack-frontend.vercel.app/",
@@ -75,8 +69,6 @@ export default function Home() {
     },
     {
       slug: "qrcodepay",
-      title: "QrCodePay",
-      description: "Plataforma de pagamentos por QR Code para comerciantes, com onboarding por convite e painel administrativo completo. Backend não está publicado — inclui demo interativa.",
       technologies: ["Next.js", "Node.js", "MongoDB", "Docker"],
       image: "/images/projetos/qrcodepay/qrcodepay-1.png",
       link: "/projetos/qrcodepay#demo",
@@ -84,8 +76,6 @@ export default function Home() {
     },
     {
       slug: "ecommerce",
-      title: "E-commerce",
-      description: "Plataforma completa de e-commerce com painel administrativo.",
       technologies: ["Next.js", "Node.js", "MongoDB"],
       image: "/images/ecommerce.jpg",
       link: "https://ecommerce-five-lime-36.vercel.app/",
@@ -93,8 +83,6 @@ export default function Home() {
     },
     {
       slug: "barbearia",
-      title: "Barbearia",
-      description: "Plataforma para fazer agendamentos em uma barbearia com painel administrativo e integração com pagamentos.",
       technologies: ["Typescript", "Next.js"],
       image: "/images/barbearia.jpg",
       link: "https://barbearia-sepia-eight.vercel.app/",
@@ -103,8 +91,6 @@ export default function Home() {
     },
     {
       slug: "gestao-financeira",
-      title: "Sistema de Gestão Financeira",
-      description: "Sistema para controle de finanças pessoais com relatórios",
       technologies: ["React", "Node.js+express"],
       image: "/images/gestao-financeira.jpg",
       link: "https://financas-pessoais-frontend.vercel.app/",
@@ -112,8 +98,6 @@ export default function Home() {
     },
     {
       slug: "orbital",
-      title: "Projeto orbita",
-      description: "Plataforma completa de e-commerce com painel administrativo e integração com pagamentos.",
       technologies: ["Next.js", "Node.js", "MongoDB"],
       image: "/images/orbita.jpg",
       link: "https://orbita-mocha-nine.vercel.app/",
@@ -121,8 +105,6 @@ export default function Home() {
     },
     {
       slug: "neoxia",
-      title: "Neoxia",
-      description: "Agencia de Marketing Digital, com o objetivo de fornecer soluções inovadoras e eficazes para empresas que desejam expandir sua presença online e alcançar seus objetivos de negócios.",
       technologies: ["Typescript", "Next.js"],
       image: "/images/Neoxia.jpg",
       link: "https://neoxia.vercel.app/",
@@ -130,8 +112,6 @@ export default function Home() {
     },
     {
       slug: "gestao-stock",
-      title: "Gestão de Stock",
-      description: "Sistema para gestão de stock completo.",
       technologies: ["Node.js + express", "Next.js", "MySQL"],
       image: "/images/gestao-stock.jpg",
       link: "https://gestao-frontend-zeta.vercel.app/",
@@ -139,8 +119,6 @@ export default function Home() {
     },
     {
       slug: "landing-page",
-      title: "Landing Page",
-      description: "Página de conversão altamente persuasiva",
       technologies: ["React"],
       image: "/images/landin-page.jpg",
       link: "https://landing-page-hotmart-nine.vercel.app/",
@@ -149,8 +127,6 @@ export default function Home() {
     
     {
       slug: "games-hub",
-      title: "Games Hub",
-      description: "Mini plataforma de jogos ",
       technologies: ["React","Typescript"],
       image: "/images/gameshub.jpg",
       link: "https://jogo-memoria-e-mais.vercel.app/",
@@ -158,8 +134,6 @@ export default function Home() {
     },
     {
       slug: "primeflix",
-      title: "PrimeFlix",
-      description: "Plataforma para ver os filmes que estão em alta e seus detalhes com o uso de uma api publica ",
       technologies: ["React","axios"],
       image: "/images/primeFlix.jpg",
       link: "https://primeflix-one-chi.vercel.app/",
@@ -167,6 +141,12 @@ export default function Home() {
     }
    
   ];
+
+  const projects = projectsBase.map((p) => ({
+    ...p,
+    title: t.projects[p.slug]?.title ?? p.slug,
+    description: t.projects[p.slug]?.description ?? "",
+  }));
 
   // Verificar se é mobile e inicializar elementos flutuantes
   useEffect(() => {
@@ -224,7 +204,7 @@ export default function Home() {
 
       <div className={`absolute inset-0 bg-gradient-to-br ${darkMode ? 'from-yellow-400/8 via-transparent to-amber-300/8' : 'from-yellow-200/20 via-transparent to-amber-100/20'} z-0`} />
 
-      <HeroSection darkMode={darkMode} textIndex={textIndex} texts={texts} />
+      <HeroSection darkMode={darkMode} textIndex={textIndex} />
       
       <ProjectsSection darkMode={darkMode} projects={projects} />
       

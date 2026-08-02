@@ -5,6 +5,8 @@ import { ExternalLink, Github, ArrowLeft, Layers, Server, ListChecks, Lightbulb,
 import Image from "next/image";
 import Link from "next/link";
 import type { ProjectData } from "../data/projects";
+import { useLanguage } from "../i18n/LanguageContext";
+import { useTranslatedProject } from "../i18n/useTranslatedProject";
 import QrCodePayDemo from "./demos/QrCodePayDemo";
 import CrfDeskDemo from "./demos/CrfDeskDemo";
 import BoardGovDemo from "./demos/BoardGovDemo";
@@ -19,7 +21,9 @@ const DEMO_COMPONENTS: Record<string, React.ComponentType> = {
   argpack: ArgPackDemo,
 };
 
-export default function ProjectDetail({ project }: { project: ProjectData }) {
+export default function ProjectDetail({ project: baseProject }: { project: ProjectData }) {
+  const { t } = useLanguage();
+  const project = useTranslatedProject(baseProject);
   const fadeUp = {
     initial: { opacity: 0, y: 24 },
     whileInView: { opacity: 1, y: 0 },
@@ -29,7 +33,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
 
   const DemoComponent = DEMO_COMPONENTS[project.slug];
   const isInternalLink = project.link.startsWith("/");
-  const primaryLabel = DemoComponent ? "Ver demo interativa" : "Ver projeto ao vivo";
+  const primaryLabel = DemoComponent ? t.projectDetail.viewLiveDemo : t.projectDetail.viewLiveProject;
 
   return (
     <main className="relative min-h-screen bg-gray-950 text-white overflow-hidden">
@@ -44,7 +48,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
             className="flex items-center gap-2 text-sm sm:text-base hover:text-yellow-400 transition-colors"
           >
             <ArrowLeft size={18} />
-            Voltar aos projetos
+            {t.projectDetail.backToProjects}
           </Link>
           <span className="text-yellow-400 font-bold text-sm sm:text-base">Nataniel Oliveira</span>
         </div>
@@ -94,7 +98,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-700 hover:border-yellow-400 hover:text-yellow-400 transition-colors font-semibold"
               >
                 <Github size={18} />
-                Ver código-fonte
+                {t.projectDetail.viewSourceCode}
               </a>
             )}
           </div>
@@ -118,23 +122,23 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
 
         {/* Demo interativa (simulação client-side, para projetos sem backend publicado) */}
         {DemoComponent && (
-          <Section icon={<PlayCircle size={22} />} title="Demo interativa" id="demo" {...fadeUp}>
+          <Section icon={<PlayCircle size={22} />} title={t.projectDetail.interactiveDemo} id="demo" {...fadeUp}>
             <DemoComponent />
           </Section>
         )}
 
         {/* Visão geral */}
-        <Section icon={<Layers size={22} />} title="Visão geral" {...fadeUp}>
+        <Section icon={<Layers size={22} />} title={t.projectDetail.overview} {...fadeUp}>
           <p className="text-gray-300 leading-relaxed">{project.overview}</p>
         </Section>
 
         {/* Problema */}
-        <Section icon={<Lightbulb size={22} />} title="O problema / objetivo" {...fadeUp}>
+        <Section icon={<Lightbulb size={22} />} title={t.projectDetail.problem} {...fadeUp}>
           <p className="text-gray-300 leading-relaxed">{project.problem}</p>
         </Section>
 
         {/* Stack */}
-        <Section icon={<Server size={22} />} title="Stack tecnológica" {...fadeUp}>
+        <Section icon={<Server size={22} />} title={t.projectDetail.stack} {...fadeUp}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {project.stack.map((group) => (
               <div
@@ -158,7 +162,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
         </Section>
 
         {/* Arquitetura */}
-        <Section icon={<Layers size={22} />} title="Arquitetura & decisões técnicas" {...fadeUp}>
+        <Section icon={<Layers size={22} />} title={t.projectDetail.architecture} {...fadeUp}>
           <div className="space-y-6">
             {project.architecture.map((block) => (
               <div key={block.title}>
@@ -171,17 +175,15 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
 
         {/* Backend explicado */}
         {project.backend.length > 0 && (
-          <Section icon={<Server size={22} />} title="Como o backend foi pensado" {...fadeUp}>
+          <Section icon={<Server size={22} />} title={t.projectDetail.backend} {...fadeUp}>
             {!project.hasLiveBackend && (
               <div className="mb-6 flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
                 <AlertTriangle size={18} className="text-amber-400 mt-0.5 shrink-0" />
                 <p className="text-amber-200 text-sm leading-relaxed">
-                  O backend deste projeto não está publicamente hospedado (por isso as tags de
-                  tecnologia abaixo do título indicam a stack usada).
+                  {t.projectDetail.backendNotice}
                   {DemoComponent
-                    ? " Experimente a demo interativa no topo desta página para ver o fluxo principal a funcionar — a simulação corre inteiramente no browser. "
+                    ? ` ${t.projectDetail.backendNoticeDemo} `
                     : " "}
-                  A explicação abaixo descreve exatamente como o backend foi desenhado e implementado durante o desenvolvimento.
                 </p>
               </div>
             )}
@@ -197,7 +199,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
         )}
 
         {/* Funcionalidades */}
-        <Section icon={<ListChecks size={22} />} title="Funcionalidades principais" {...fadeUp}>
+        <Section icon={<ListChecks size={22} />} title={t.projectDetail.features} {...fadeUp}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {project.features.map((feature) => (
               <div
@@ -213,7 +215,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
 
         {/* Desafios */}
         {project.challenges.length > 0 && (
-          <Section icon={<AlertTriangle size={22} />} title="Desafios & soluções" {...fadeUp}>
+          <Section icon={<AlertTriangle size={22} />} title={t.projectDetail.challenges} {...fadeUp}>
             <div className="space-y-6">
               {project.challenges.map((block) => (
                 <div key={block.title} className="p-5 rounded-xl bg-gray-900/60 border border-gray-800">
@@ -227,7 +229,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
 
         {/* Aprendizagens */}
         {project.learnings.length > 0 && (
-          <Section icon={<GraduationCap size={22} />} title="Principais aprendizagens" {...fadeUp}>
+          <Section icon={<GraduationCap size={22} />} title={t.projectDetail.learnings} {...fadeUp}>
             <ul className="space-y-2">
               {project.learnings.map((l) => (
                 <li key={l} className="flex items-start gap-3 text-gray-300 leading-relaxed">
@@ -241,7 +243,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
 
         {/* Gallery */}
         {project.gallery.length > 1 && (
-          <Section icon={<Layers size={22} />} title="Galeria" {...fadeUp}>
+          <Section icon={<Layers size={22} />} title={t.projectDetail.gallery} {...fadeUp}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {project.gallery.map((src, i) => (
                 <div
@@ -250,7 +252,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
                 >
                   <Image
                     src={src}
-                    alt={`${project.title} - captura ${i + 1}`}
+                    alt={`${project.title} - ${t.projectDetail.galleryAlt} ${i + 1}`}
                     fill
                     className="object-cover hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -266,11 +268,11 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
           {...fadeUp}
           className="mt-16 p-8 rounded-2xl bg-gradient-to-br from-yellow-400/10 to-amber-600/10 border border-yellow-400/20 text-center"
         >
-          <h3 className="text-xl sm:text-2xl font-bold mb-2">Quer ver o projeto por dentro?</h3>
+          <h3 className="text-xl sm:text-2xl font-bold mb-2">{t.projectDetail.ctaTitle}</h3>
           <p className="text-gray-300 mb-6">
             {DemoComponent
-              ? "Explore a demo interativa acima ou o código-fonte completo no GitHub."
-              : "Explore a demo ao vivo ou o código-fonte completo no GitHub."}
+              ? t.projectDetail.ctaDescriptionDemo
+              : t.projectDetail.ctaDescription}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             {isInternalLink ? (
@@ -289,7 +291,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-yellow-400 to-amber-600 text-gray-950 font-semibold hover:opacity-90 transition-opacity"
               >
                 <ExternalLink size={18} />
-                Ver projeto
+                {t.projectDetail.viewProject}
               </a>
             )}
             {project.github && (
@@ -300,7 +302,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
                 className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-700 hover:border-yellow-400 hover:text-yellow-400 transition-colors font-semibold"
               >
                 <Github size={18} />
-                Código
+                {t.projectDetail.code}
               </a>
             )}
             <Link
@@ -308,7 +310,7 @@ export default function ProjectDetail({ project }: { project: ProjectData }) {
               className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-700 hover:border-yellow-400 hover:text-yellow-400 transition-colors font-semibold"
             >
               <ArrowLeft size={18} />
-              Outros projetos
+              {t.projectDetail.otherProjects}
             </Link>
           </div>
         </motion.div>
