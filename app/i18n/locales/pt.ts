@@ -36,7 +36,7 @@ const pt: TranslationShape = {
     title: "Sobre Mim",
     name: "Nataniel Oliveira",
     paragraph1:
-      "Sou um desenvolvedor Fullstack apaixonado por tecnologia e inovação. Com mais de 5 anos de experiência, tenho dedicado minha carreira a criar soluções digitais que fazem a diferença na vida das pessoas.",
+      "Sou um desenvolvedor Fullstack apaixonado por tecnologia e inovação. Tenho dedicado minha carreira a criar soluções digitais que fazem a diferença na vida das pessoas.",
     paragraph2:
       "Minha expertise abrange desde o desenvolvimento front-end com React e Next.js até o back-end com Node.js e diversas bases de dados. Acredito que a tecnologia deve ser não apenas funcional, mas também intuitiva e agradável de usar.",
     stats: {

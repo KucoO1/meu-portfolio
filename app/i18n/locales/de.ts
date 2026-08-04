@@ -36,7 +36,7 @@ const de: TranslationShape = {
     title: "Über Mich",
     name: "Nataniel Oliveira",
     paragraph1:
-      "Ich bin ein Fullstack-Entwickler mit Leidenschaft für Technologie und Innovation. Mit über 5 Jahren Erfahrung widme ich meine Karriere der Entwicklung digitaler Lösungen, die im Leben von Menschen einen echten Unterschied machen.",
+      "Ich bin ein Fullstack-Entwickler mit Leidenschaft für Technologie und Innovation. Erfahrung widme ich meine Karriere der Entwicklung digitaler Lösungen, die im Leben von Menschen einen echten Unterschied machen.",
     paragraph2:
       "Meine Expertise reicht von Frontend-Entwicklung mit React und Next.js bis hin zu Backend-Arbeit mit Node.js und verschiedenen Datenbanken. Ich bin überzeugt, dass Technologie nicht nur funktional, sondern auch intuitiv und angenehm zu bedienen sein sollte.",
     stats: {
