@@ -924,6 +924,79 @@ const fr: ProjectTranslationDict = {
       "Concevoir dès le départ pour la conformité réglementaire (Loi 1/04, rapports BNA) économise un travail de refonte important quand vient le moment de générer ces rapports, car les données naissent déjà sous la bonne forme",
     ],
   },
+  pizzaria: {
+    title: "PizzaExpress",
+    tagline: "Système de gestion des commandes pour une pizzeria, de la table à la cuisine et à la caisse",
+    overview:
+      "Un système de gestion pour pizzerias et restaurants couvrant tout le cycle de la commande : le client compose sa commande depuis une table, la cuisine la reçoit sur un panneau en temps réel organisé par état de préparation, et l'administration suit les tables, les utilisateurs, les produits et le chiffre d'affaires depuis son propre tableau de bord. Conçu pour remplacer le carnet de commandes en papier d'un petit restaurant par un flux numérique, sans perdre la simplicité qu'exige une cuisine sous pression.",
+    problem:
+      "Dans un petit restaurant, le plus grand risque n'est pas le manque de technologie — c'est une commande qui se perd entre la table et la cuisine, ou une addition fermée avec le mauvais montant. Le défi était de construire un système où une commande n'est jamais \"orpheline\" : elle naît comme brouillon rattaché à une table, traverse des états bien définis jusqu'à la livraison, et n'entre dans le chiffre d'affaires du jour qu'une fois finalisée — avec un tableau de bord admin donnant au gérant une visibilité totale sur les tables actives, les commandes en cours et la facturation, sans dépendre du papier.",
+    stack: [
+      { label: "Frontend", items: ["Next.js (App Router)", "TypeScript", "Tailwind CSS", "Mise à jour par polling du panneau cuisine"] },
+      { label: "Backend", items: ["Node.js + Express + TypeScript", "JWT (jsonwebtoken) pour l'authentification", "bcrypt pour le hachage des mots de passe", "Multer pour l'upload des images produits"] },
+      { label: "Base de données", items: ["MongoDB + Mongoose", "Modèles : User, Table, Product, Category, Order"] },
+      { label: "Infrastructure", items: ["API REST séparée (backend Node)", "Frontend et backend dans des dépôts distincts"] },
+    ],
+    architecture: [
+      {
+        title: "La commande naît comme brouillon, jamais comme un fait accompli",
+        content:
+          "Chaque Order possède un indicateur draft et un état (brouillon → en préparation → prête → livrée → finalisée). Tant qu'elle est un brouillon, la commande n'appartient qu'au client qui la compose et reste librement modifiable ; dès qu'elle quitte cet état, un hook pre-save de Mongoose fait automatiquement passer le statut à \"en préparation\", ce qui empêche qu'une commande soit marquée comme envoyée en cuisine tout en restant modifiable.",
+      },
+      {
+        title: "Le total de la commande est toujours calculé côté serveur, jamais confié au client",
+        content:
+          "Le prix de chaque article provient du Product au moment de la création de la commande, et un middleware Mongoose recalcule le sous-total de chaque ligne et le total de la commande à chaque enregistrement du document — le frontend n'envoie jamais de total, seulement des quantités et des produits. Cela élimine toute une classe de bugs (et de tentatives de manipulation) où le montant affiché au client diverge de celui réellement facturé.",
+      },
+      {
+        title: "La table comme agrégateur de commandes, pas comme commande unique",
+        content:
+          "Une Table stocke une liste de références vers des Order plutôt qu'une commande unique, car en pratique une table passe rarement une seule commande — d'abord une boisson, puis le plat, puis un dessert. L'écran \"Addition\" additionne en temps réel toutes les commandes actives de cette table, et ce n'est qu'une fois le paiement confirmé que ces commandes passent à finalisée et que la table se libère.",
+      },
+    ],
+    backend: [
+      {
+        title: "API REST en Node.js + Express",
+        content:
+          "L'API expose des routes par ressource — /api/products, /api/categories, /api/orders, /api/tables, /api/users, /api/admin/* — chacune protégée par un middleware d'authentification JWT et une vérification de rôle (user vs admin) quand nécessaire. Les routes d'administration sont isolées des routes de commandes classiques, afin qu'une faille d'autorisation sur un panneau n'expose jamais d'opérations sensibles de l'autre.",
+      },
+      {
+        title: "Tableau de bord admin : chiffre d'affaires, utilisateurs et nettoyage de l'historique",
+        content:
+          "L'AdminController calcule le chiffre d'affaires uniquement à partir des commandes au statut finalisée, regroupées par catégorie de produit et par période (journalière/mensuelle), jamais à partir de commandes encore en cours. L'opération de nettoyage ne supprime que les commandes finalisée — les commandes actives, en préparation ou en brouillon restent toujours intactes — et renvoie à l'administrateur un décompte exact avant confirmation de l'action.",
+      },
+      {
+        title: "Gestion des tables et cycle de vie de la commande",
+        content:
+          "Le TableController garantit qu'un numéro de table est unique dans le système et maintient la liste des commandes actives associées à chaque table. Le flux d'états d'une commande (brouillon → en préparation → prête → livrée → finalisée) est validé à chaque transition dans le orderController, afin que la cuisine ne puisse jamais marquer comme \"prête\" une commande encore en brouillon côté client.",
+      },
+    ],
+    features: [
+      "Carte organisée par catégories avec disponibilité des produits en temps réel",
+      "Commande par table avec brouillon modifiable avant envoi en cuisine",
+      "Panneau cuisine avec commandes organisées par statut (en préparation / prêtes à livrer)",
+      "Gestion des tables avec addition consolidée et clôture du paiement",
+      "Tableau de bord admin avec utilisateurs, produits, commandes et tables",
+      "Rapports de ventes par période et par catégorie, avec ticket moyen",
+      "Nettoyage contrôlé de l'historique, limité aux commandes déjà finalisées",
+    ],
+    challenges: [
+      {
+        title: "Empêcher qu'une commande ne \"disparaisse\" entre la table et la cuisine",
+        content:
+          "Résolu en modélisant la commande comme une machine à états explicite plutôt qu'un simple booléen \"envoyée/non envoyée\" — chaque transition est enregistrée sur le document lui-même, et le panneau cuisine comme le panneau client lisent toujours le même statut depuis la même source de vérité.",
+      },
+      {
+        title: "Garantir que la clôture de l'addition d'une table ne perde ni ne duplique jamais une commande",
+        content:
+          "Résolu en faisant en sorte que la Table ne stocke que des références vers les commandes, jamais une copie de leurs valeurs — l'addition est toujours recalculée à partir des commandes réelles au moment où elle est demandée, plutôt que de conserver un total \"mis en cache\" sur la table elle-même qui pourrait diverger de la réalité.",
+      },
+    ],
+    learnings: [
+      "Modéliser la commande comme une machine à états dès le départ évite d'avoir à \"rafistoler\" les règles de transition plus tard, une fois que des données réelles existent déjà en production",
+      "Ne jamais faire confiance à une valeur monétaire venant du client — toujours la recalculer côté serveur, même pour des opérations internes simples comme une commande de table",
+    ],
+  },
 };
 
 export default fr;

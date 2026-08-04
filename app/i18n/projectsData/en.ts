@@ -924,6 +924,79 @@ const en: ProjectTranslationDict = {
       "Designing for regulatory compliance from the start (Law 1/04, BNA reports) saves significant rework when it's time to generate those reports, because the data is already born in the right shape",
     ],
   },
+  pizzaria: {
+    title: "PizzaExpress",
+    tagline: "Order management system for a pizzeria, from the table to the kitchen to checkout",
+    overview:
+      "A management system for pizzerias and restaurants covering the full order lifecycle: the customer builds an order at a table, the kitchen receives it on a real-time panel organized by preparation status, and the admin tracks tables, users, products, and revenue from a dedicated dashboard. It was built to replace a small restaurant's paper order pad with a digital flow, without losing the simplicity a busy kitchen needs.",
+    problem:
+      "In a small restaurant, the biggest risk isn't a lack of technology — it's an order that gets lost between the table and the kitchen, or a bill closed with the wrong amount. The challenge was to build a system where an order is never \"orphaned\": it's born as a draft tied to a table, moves through well-defined states until it's delivered, and only counts toward the day's revenue once it's finalized — with an admin dashboard that gives the owner full visibility over active tables, orders in progress, and billing, without relying on paper.",
+    stack: [
+      { label: "Frontend", items: ["Next.js (App Router)", "TypeScript", "Tailwind CSS", "Polling-based updates for the kitchen panel"] },
+      { label: "Backend", items: ["Node.js + Express + TypeScript", "JWT (jsonwebtoken) for authentication", "bcrypt for password hashing", "Multer for product image uploads"] },
+      { label: "Database", items: ["MongoDB + Mongoose", "Models: User, Table, Product, Category, Order"] },
+      { label: "Infrastructure", items: ["Separate REST API (Node backend)", "Frontend and backend in separate repositories"] },
+    ],
+    architecture: [
+      {
+        title: "An order is born as a draft, never as a done deal",
+        content:
+          "Every Order has a draft flag and a status (draft → preparing → ready → delivered → finalized). While it's a draft, the order belongs only to the customer building it and can be freely edited; as soon as it leaves draft state, a Mongoose pre-save hook automatically advances the status to \"preparing\", closing the door on an order that's marked as sent to the kitchen but is still editable.",
+      },
+      {
+        title: "The order total is always calculated server-side, never trusted from the client",
+        content:
+          "Each item's price comes from the Product at the moment the order is created, and a Mongoose middleware recalculates each line's subtotal and the order total every time the document is saved — the frontend never sends a total, only quantities and products. This eliminates an entire class of bugs (and tampering attempts) where the amount shown to the customer diverges from what's actually charged.",
+      },
+      {
+        title: "A table as an order aggregator, not a single order",
+        content:
+          "A Table stores a list of references to Order documents instead of a single order, because in practice a table rarely places just one order — a drink first, then food, then dessert. The \"Bill\" screen sums all of that table's active orders in real time, and only once payment is confirmed do those orders move to finalized and the table is freed up.",
+      },
+    ],
+    backend: [
+      {
+        title: "REST API in Node.js + Express",
+        content:
+          "The API exposes routes per resource — /api/products, /api/categories, /api/orders, /api/tables, /api/users, /api/admin/* — each protected by JWT authentication middleware and role checks (user vs admin) where needed. Admin routes live isolated from regular order routes, so an authorization failure in one panel can never expose sensitive operations in the other.",
+      },
+      {
+        title: "Admin dashboard: revenue, users, and history cleanup",
+        content:
+          "The AdminController calculates revenue only from orders with a finalized status, grouped by product category and by period (daily/monthly), never from orders still in progress. The cleanup operation only deletes finalized orders — active, in-preparation, or draft orders are always left untouched — and returns an exact count of what was removed before the action is confirmed.",
+      },
+      {
+        title: "Table management and the order lifecycle",
+        content:
+          "The TableController ensures a table number is unique across the system and keeps the list of active orders tied to each table. An order's status flow (draft → preparing → ready → delivered → finalized) is validated at every transition in the orderController, so the kitchen can never mark as \"ready\" an order that's still a draft on the customer's side.",
+      },
+    ],
+    features: [
+      "Menu organized by category with real-time product availability",
+      "Per-table ordering with an editable draft before sending to the kitchen",
+      "Kitchen panel with orders organized by status (in preparation / ready for delivery)",
+      "Table management with a consolidated bill and payment close-out",
+      "Admin dashboard with users, products, orders, and tables",
+      "Sales reports by period and category, with average ticket size",
+      "Controlled history cleanup, restricted to already-finalized orders",
+    ],
+    challenges: [
+      {
+        title: "Preventing an order from \"disappearing\" between the table and the kitchen",
+        content:
+          "Solved by modeling the order as an explicit state machine instead of a simple \"sent/not sent\" boolean — every transition is recorded on the document itself, and both the kitchen panel and the customer panel always read the same status from the same source of truth.",
+      },
+      {
+        title: "Making sure closing a table's bill never loses or duplicates an order",
+        content:
+          "Solved by making the Table hold only references to orders, never a copy of their values — the bill is always recalculated from the real orders at the moment it's requested, instead of keeping a \"cached\" total on the table itself that could drift from reality.",
+      },
+    ],
+    learnings: [
+      "Modeling the order as a state machine from the start avoids having to \"patch\" transition rules later, once real data already exists in production",
+      "Never trust any monetary value coming from the client — always recalculate server-side, even for simple internal operations like a table order",
+    ],
+  },
 };
 
 export default en;

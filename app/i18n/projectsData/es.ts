@@ -924,6 +924,79 @@ const es: ProjectTranslationDict = {
       "Diseñar desde el inicio para el cumplimiento regulatorio (Ley 1/04, informes del BNA) ahorra un retrabajo significativo cuando llega el momento de generar esos informes, porque los datos ya nacen con la forma correcta",
     ],
   },
+  pizzaria: {
+    title: "PizzaExpress",
+    tagline: "Sistema de gestión de pedidos para una pizzería, de la mesa a la cocina y a la caja",
+    overview:
+      "Sistema de gestión para pizzerías y restaurantes que cubre todo el ciclo del pedido: el cliente arma el pedido en una mesa, la cocina lo recibe en un panel en tiempo real organizado por estado de preparación, y la administración controla mesas, usuarios, productos e ingresos desde un panel propio. Nació para sustituir la libreta de comandas en papel de un pequeño restaurante por un flujo digital sin perder la simplicidad del día a día de una cocina con prisa.",
+    problem:
+      "En un restaurante pequeño, el mayor riesgo no es la falta de tecnología: es un pedido que se pierde entre la mesa y la cocina, o una cuenta cerrada con el valor incorrecto. El reto fue construir un sistema donde un pedido nunca quede \"huérfano\": nace como borrador ligado a una mesa, avanza por estados bien definidos hasta ser entregado, y solo entra en los ingresos del día una vez finalizado — con un panel de administración que da al dueño del restaurante visibilidad total sobre mesas activas, pedidos en curso y facturación, sin depender del papel.",
+    stack: [
+      { label: "Frontend", items: ["Next.js (App Router)", "TypeScript", "Tailwind CSS", "Actualización por polling del panel de cocina"] },
+      { label: "Backend", items: ["Node.js + Express + TypeScript", "JWT (jsonwebtoken) para autenticación", "bcrypt para el hash de contraseñas", "Multer para la subida de imágenes de productos"] },
+      { label: "Base de datos", items: ["MongoDB + Mongoose", "Modelos: User, Table, Product, Category, Order"] },
+      { label: "Infraestructura", items: ["API REST independiente (backend Node)", "Frontend y backend en repositorios separados"] },
+    ],
+    architecture: [
+      {
+        title: "El pedido nace como borrador, nunca como un hecho consumado",
+        content:
+          "Cada Order tiene un flag draft y un estado (borrador → en preparación → listo → entregado → finalizado). Mientras está en borrador, el pedido pertenece solo al cliente que lo está armando y puede editarse libremente; en cuanto sale del borrador, el propio schema de Mongoose garantiza en el pre-save que el estado avanza automáticamente a \"en preparación\", cerrando la puerta a un pedido que queda marcado como enviado a cocina pero sigue siendo editable.",
+      },
+      {
+        title: "El total del pedido se calcula siempre en el servidor, nunca confiado al cliente",
+        content:
+          "El precio de cada ítem proviene del Product en el momento en que se crea el pedido, y un middleware de Mongoose recalcula el subtotal de cada línea y el total del pedido cada vez que el documento se guarda — el frontend nunca envía un total, solo cantidades y productos. Esto elimina toda una clase de errores (y de intentos de manipulación) donde el valor mostrado al cliente diverge del valor realmente cobrado.",
+      },
+      {
+        title: "La mesa como agregador de pedidos, no como pedido único",
+        content:
+          "Una Table guarda una lista de referencias a Order en vez de un único pedido, porque en la práctica una mesa rara vez hace solo un pedido: se pide una bebida, luego la comida, luego el postre. La pantalla \"Cuenta\" suma en tiempo real todos los pedidos activos de esa mesa, y solo cuando se confirma el pago esos pedidos pasan a finalizado y la mesa queda liberada.",
+      },
+    ],
+    backend: [
+      {
+        title: "API REST en Node.js + Express",
+        content:
+          "La API expone rutas por recurso — /api/products, /api/categories, /api/orders, /api/tables, /api/users, /api/admin/* — cada una protegida por middlewares de autenticación JWT y verificación de rol (user vs admin) cuando corresponde. Las rutas de administración viven aisladas de las rutas normales de pedidos, para que un fallo de autorización en un panel nunca exponga operaciones sensibles del otro.",
+      },
+      {
+        title: "Panel administrativo: ingresos, usuarios y limpieza de historial",
+        content:
+          "El AdminController calcula los ingresos solo a partir de pedidos con estado finalizado, agrupados por categoría de producto y por período (diario/mensual), nunca a partir de pedidos aún en curso. La operación de limpiar historial solo elimina pedidos finalizado — los pedidos activos, en preparación o en borrador quedan siempre intactos — y devuelve al administrador un recuento exacto de lo eliminado antes de confirmar la acción.",
+      },
+      {
+        title: "Gestión de mesas y ciclo de vida del pedido",
+        content:
+          "El TableController garantiza que un número de mesa sea único en el sistema y mantiene la lista de pedidos activos asociados a cada mesa. El flujo de estado de un pedido (borrador → en preparación → listo → entregado → finalizado) se valida en cada transición dentro del orderController, para que la cocina nunca marque como \"listo\" un pedido que todavía está en borrador del lado del cliente.",
+      },
+    ],
+    features: [
+      "Carta por categorías con disponibilidad de productos en tiempo real",
+      "Pedido por mesa con borrador editable antes de enviarlo a cocina",
+      "Panel de cocina con pedidos organizados por estado (en preparación / listos para entrega)",
+      "Gestión de mesas con cuenta consolidada y cierre de pago",
+      "Panel administrativo con usuarios, productos, pedidos y mesas",
+      "Informes de ventas por período y por categoría, con ticket promedio",
+      "Limpieza controlada del historial, restringida a pedidos ya finalizados",
+    ],
+    challenges: [
+      {
+        title: "Impedir que un pedido \"desaparezca\" entre la mesa y la cocina",
+        content:
+          "Resuelto modelando el pedido como una máquina de estados explícita en vez de un simple booleano \"enviado/no enviado\" — cada transición queda registrada en el propio documento, y tanto el panel de cocina como el panel del cliente leen siempre el mismo estado desde la misma fuente de verdad.",
+      },
+      {
+        title: "Garantizar que cerrar la cuenta de una mesa nunca pierda ni duplique un pedido",
+        content:
+          "Resuelto haciendo que la Table solo guarde referencias a pedidos, nunca una copia de sus valores — la cuenta se recalcula siempre a partir de los pedidos reales en el momento en que se solicita, en vez de mantener un total \"en caché\" en la propia mesa que podría divergir de la realidad.",
+      },
+    ],
+    learnings: [
+      "Modelar el pedido como máquina de estados desde el inicio evita tener que \"parchar\" reglas de transición más adelante, cuando ya existen datos reales en producción",
+      "Nunca confiar en ningún valor monetario proveniente del cliente — recalcular siempre en el servidor, incluso en operaciones internas simples como un pedido de mesa",
+    ],
+  },
 };
 
 export default es;

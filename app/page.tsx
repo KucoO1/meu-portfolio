@@ -89,6 +89,13 @@ export default function Home() {
       github: "https://github.com/KucoO1/barbearia",
       featured: true
     },
+      {
+      slug: "pizzaria",
+      technologies: ["Next.js", "Node.js", "Express", "MongoDB"],
+      image: "/images/projetos/pizzaria/pizzaria-1.jpg",
+      link: "/projetos/pizzaria#demo",
+      github: ""
+    },
     {
       slug: "gestao-financeira",
       technologies: ["React", "Node.js+express"],

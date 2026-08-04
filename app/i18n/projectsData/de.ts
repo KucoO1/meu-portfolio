@@ -924,6 +924,79 @@ const de: ProjectTranslationDict = {
       "Von Anfang an für regulatorische Compliance zu entwerfen (Gesetz 1/04, BNA-Berichte) erspart erheblichen Nacharbeitsaufwand, wenn es Zeit ist, diese Berichte zu generieren, weil die Daten bereits in der richtigen Form entstehen",
     ],
   },
+  pizzaria: {
+    title: "PizzaExpress",
+    tagline: "Bestellverwaltungssystem für eine Pizzeria, vom Tisch über die Küche bis zur Kasse",
+    overview:
+      "Ein Verwaltungssystem für Pizzerien und Restaurants, das den gesamten Bestellzyklus abdeckt: Der Kunde stellt seine Bestellung an einem Tisch zusammen, die Küche empfängt sie auf einem Echtzeit-Panel nach Zubereitungsstatus organisiert, und die Verwaltung behält Tische, Nutzer, Produkte und Umsatz über ein eigenes Dashboard im Blick. Entstanden, um den Papierblock eines kleinen Restaurants durch einen digitalen Ablauf zu ersetzen, ohne die Einfachheit zu verlieren, die eine hektische Küche braucht.",
+    problem:
+      "In einem kleinen Restaurant ist das größte Risiko nicht fehlende Technologie — es ist eine Bestellung, die zwischen Tisch und Küche verloren geht, oder eine Rechnung, die mit dem falschen Betrag geschlossen wird. Die Herausforderung bestand darin, ein System zu bauen, in dem eine Bestellung nie \"verwaist\": Sie entsteht als Entwurf, der an einen Tisch gebunden ist, durchläuft klar definierte Zustände bis zur Auslieferung und zählt erst nach ihrem Abschluss zum Tagesumsatz — mit einem Admin-Dashboard, das dem Inhaber volle Transparenz über aktive Tische, laufende Bestellungen und Abrechnung gibt, ganz ohne Papier.",
+    stack: [
+      { label: "Frontend", items: ["Next.js (App Router)", "TypeScript", "Tailwind CSS", "Polling-basierte Aktualisierung des Küchen-Panels"] },
+      { label: "Backend", items: ["Node.js + Express + TypeScript", "JWT (jsonwebtoken) zur Authentifizierung", "bcrypt für Passwort-Hashing", "Multer für den Upload von Produktbildern"] },
+      { label: "Datenbank", items: ["MongoDB + Mongoose", "Modelle: User, Table, Product, Category, Order"] },
+      { label: "Infrastruktur", items: ["Eigenständige REST-API (Node-Backend)", "Frontend und Backend in getrennten Repositories"] },
+    ],
+    architecture: [
+      {
+        title: "Eine Bestellung entsteht als Entwurf, nie als vollendete Tatsache",
+        content:
+          "Jede Order hat ein draft-Flag und einen Status (Entwurf → in Zubereitung → fertig → ausgeliefert → abgeschlossen). Solange sie ein Entwurf ist, gehört die Bestellung nur dem Kunden, der sie zusammenstellt, und kann frei bearbeitet werden; sobald sie den Entwurfsstatus verlässt, sorgt ein Mongoose-pre-save-Hook automatisch dafür, dass der Status auf \"in Zubereitung\" vorrückt — so kann eine Bestellung nie als an die Küche gesendet markiert sein und trotzdem noch bearbeitbar bleiben.",
+      },
+      {
+        title: "Der Bestellbetrag wird immer serverseitig berechnet, nie dem Client vertraut",
+        content:
+          "Der Preis jedes Artikels stammt zum Zeitpunkt der Bestellerstellung aus dem Product-Dokument, und eine Mongoose-Middleware berechnet Zwischensumme jeder Zeile und Gesamtbetrag der Bestellung bei jedem Speichern neu — das Frontend sendet nie einen Gesamtbetrag, nur Mengen und Produkte. Das eliminiert eine ganze Klasse von Fehlern (und Manipulationsversuchen), bei denen der dem Kunden angezeigte Betrag vom tatsächlich berechneten abweicht.",
+      },
+      {
+        title: "Ein Tisch als Sammelpunkt für Bestellungen, nicht als einzelne Bestellung",
+        content:
+          "Eine Table speichert eine Liste von Referenzen auf Order-Dokumente statt einer einzigen Bestellung, weil ein Tisch in der Praxis selten nur eine Bestellung aufgibt — erst ein Getränk, dann das Essen, dann ein Dessert. Der \"Rechnung\"-Bildschirm summiert in Echtzeit alle aktiven Bestellungen dieses Tisches, und erst nach bestätigter Zahlung wechseln diese Bestellungen zu abgeschlossen und der Tisch wird wieder frei.",
+      },
+    ],
+    backend: [
+      {
+        title: "REST-API in Node.js + Express",
+        content:
+          "Die API stellt Routen pro Ressource bereit — /api/products, /api/categories, /api/orders, /api/tables, /api/users, /api/admin/* — jede abgesichert durch JWT-Authentifizierungs-Middleware und, wo nötig, Rollenprüfung (user vs. admin). Admin-Routen sind von den normalen Bestellrouten isoliert, damit ein Autorisierungsfehler in einem Panel niemals sensible Vorgänge im anderen offenlegt.",
+      },
+      {
+        title: "Admin-Dashboard: Umsatz, Nutzer und Verlaufsbereinigung",
+        content:
+          "Der AdminController berechnet den Umsatz ausschließlich aus Bestellungen mit Status abgeschlossen, gruppiert nach Produktkategorie und Zeitraum (täglich/monatlich), nie aus noch laufenden Bestellungen. Die Bereinigungsfunktion löscht ausschließlich abgeschlossene Bestellungen — aktive, in Zubereitung befindliche oder Entwurfsbestellungen bleiben stets unangetastet — und liefert dem Administrator vor Bestätigung der Aktion eine genaue Anzahl der zu entfernenden Einträge.",
+      },
+      {
+        title: "Tischverwaltung und der Lebenszyklus einer Bestellung",
+        content:
+          "Der TableController stellt sicher, dass eine Tischnummer im gesamten System eindeutig ist, und pflegt die Liste der aktiven Bestellungen je Tisch. Der Statusfluss einer Bestellung (Entwurf → in Zubereitung → fertig → ausgeliefert → abgeschlossen) wird bei jedem Übergang im orderController validiert, damit die Küche niemals eine Bestellung als \"fertig\" markieren kann, die auf Kundenseite noch ein Entwurf ist.",
+      },
+    ],
+    features: [
+      "Speisekarte nach Kategorien mit Produktverfügbarkeit in Echtzeit",
+      "Bestellung pro Tisch mit bearbeitbarem Entwurf vor dem Versand an die Küche",
+      "Küchen-Panel mit Bestellungen nach Status organisiert (in Zubereitung / lieferbereit)",
+      "Tischverwaltung mit konsolidierter Rechnung und Zahlungsabschluss",
+      "Admin-Dashboard mit Nutzern, Produkten, Bestellungen und Tischen",
+      "Umsatzberichte nach Zeitraum und Kategorie, mit durchschnittlichem Bestellwert",
+      "Kontrollierte Verlaufsbereinigung, beschränkt auf bereits abgeschlossene Bestellungen",
+    ],
+    challenges: [
+      {
+        title: "Verhindern, dass eine Bestellung zwischen Tisch und Küche \"verschwindet\"",
+        content:
+          "Gelöst durch die Modellierung der Bestellung als explizite Zustandsmaschine statt eines einfachen \"gesendet/nicht gesendet\"-Booleans — jeder Übergang wird im Dokument selbst festgehalten, und sowohl das Küchen- als auch das Kunden-Panel lesen stets denselben Status aus derselben Quelle der Wahrheit.",
+      },
+      {
+        title: "Sicherstellen, dass das Schließen einer Tischrechnung nie eine Bestellung verliert oder dupliziert",
+        content:
+          "Gelöst, indem die Table ausschließlich Referenzen auf Bestellungen speichert, nie eine Kopie ihrer Werte — die Rechnung wird stets im Moment der Anfrage aus den realen Bestellungen neu berechnet, statt einen \"zwischengespeicherten\" Betrag am Tisch selbst zu führen, der von der Realität abweichen könnte.",
+      },
+    ],
+    learnings: [
+      "Die Bestellung von Anfang an als Zustandsmaschine zu modellieren erspart es, Übergangsregeln später zu \"flicken\", wenn bereits reale Daten in Produktion existieren",
+      "Niemals einem vom Client kommenden Geldbetrag vertrauen — immer serverseitig neu berechnen, selbst bei einfachen internen Vorgängen wie einer Tischbestellung",
+    ],
+  },
 };
 
 export default de;

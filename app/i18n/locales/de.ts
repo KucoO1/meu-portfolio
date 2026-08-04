@@ -172,6 +172,11 @@ const de: TranslationShape = {
       description:
         "Plattform zur Anzeige angesagter Filme und ihrer Details über eine öffentliche API.",
     },
+    pizzaria: {
+      title: "PizzaExpress",
+      description:
+        "Bestellverwaltungssystem für eine Pizzeria: Tische, Küche und Admin-Panel. Backend nicht veröffentlicht — mit interaktiver Demo.",
+    },
   },
 };
 

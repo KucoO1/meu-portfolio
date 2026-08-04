@@ -172,6 +172,11 @@ const pt: TranslationShape = {
       description:
         "Plataforma para ver os filmes que estão em alta e os seus detalhes com o uso de uma API pública.",
     },
+    pizzaria: {
+      title: "PizzaExpress",
+      description:
+        "Sistema de gestão de pedidos para pizzaria: mesas, cozinha e painel administrativo. Backend não está publicado — inclui demo interativa.",
+    },
   },
 };
 

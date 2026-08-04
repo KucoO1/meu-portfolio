@@ -1157,6 +1157,96 @@ export const projects: ProjectData[] = [
       "Desenhar desde o início para conformidade regulatória (Lei 1/04, relatórios BNA) poupa retrabalho grande quando chega a altura de gerar esses relatórios, porque os dados já nascem na forma certa",
     ],
   },
+
+  // 13. PIZZAEXPRESS
+  {
+    slug: "pizzaria",
+    title: "PizzaExpress",
+    tagline: "Sistema de gestão de pedidos para pizzaria, da mesa à cozinha e ao caixa",
+    technologies: ["Next.js", "Node.js", "Express", "MongoDB"],
+    image: "/images/projetos/pizzaria/pizzaria-1.jpg",
+    gallery: [
+      "/images/projetos/pizzaria/pizzaria-1.jpg",
+      "/images/projetos/pizzaria/pizzaria-2.jpg",
+      "/images/projetos/pizzaria/pizzaria-3.jpg",
+      "/images/projetos/pizzaria/pizzaria-4.jpg",
+      "/images/projetos/pizzaria/pizzaria-5.jpg",
+      "/images/projetos/pizzaria/pizzaria-6.jpg",
+      "/images/projetos/pizzaria/pizzaria-7.png",
+    ],
+    link: "/projetos/pizzaria#demo",
+    github: "",
+    hasLiveBackend: false,
+    overview:
+      "Sistema de gestão para pizzarias e restaurantes que cobre todo o ciclo do pedido: o cliente monta o pedido numa mesa, a cozinha recebe-o num painel em tempo real organizado por estado de preparação, e a administração acompanha mesas, utilizadores, produtos e receita a partir de um painel próprio. Nasceu para substituir o caderno de comandas em papel de um pequeno restaurante por um fluxo digital sem perder a simplicidade do dia a dia de uma cozinha com pressa.",
+    problem:
+      "Num restaurante pequeno, o maior risco não é falta de tecnologia — é um pedido que se perde entre a mesa e a cozinha, ou uma conta fechada com o valor errado. O desafio foi construir um sistema onde um pedido nunca fica \"órfão\": nasce como rascunho ligado a uma mesa, segue por estados bem definidos até ser entregue, e só entra na receita do dia depois de finalizado — com um painel de administração que dá ao dono do restaurante visibilidade total sobre mesas ativas, pedidos em curso e faturação, sem depender de papel.",
+    stack: [
+      { label: "Frontend", items: ["Next.js (App Router)", "TypeScript", "Tailwind CSS", "Atualização em polling do painel da cozinha"] },
+      { label: "Backend", items: ["Node.js + Express + TypeScript", "JWT (jsonwebtoken) para autenticação", "bcrypt para hashing de password", "Multer para upload de imagens de produtos"] },
+      { label: "Base de dados", items: ["MongoDB + Mongoose", "Modelos: User, Table, Product, Category, Order"] },
+      { label: "Infraestrutura", items: ["API REST separada (backend Node)", "Frontend e backend em repositórios distintos"] },
+    ],
+    architecture: [
+      {
+        title: "O pedido nasce como rascunho, nunca como facto consumado",
+        content:
+          "Cada Order tem uma flag draft e um estado (rascunho → preparando → pronto → entregue → finalizado). Enquanto está em rascunho, o pedido pertence só ao cliente que o está a montar e pode ser editado livremente; assim que sai do rascunho, o próprio schema do Mongoose garante no pre-save que o estado avança automaticamente para \"preparando\", fechando a porta a um pedido que fica marcado como enviado à cozinha mas continua editável.",
+      },
+      {
+        title: "Total do pedido calculado sempre no servidor, nunca confiado ao cliente",
+        content:
+          "O preço de cada item vem do Product no momento em que o pedido é criado, e um middleware Mongoose recalcula o subtotal de cada linha e o total do pedido sempre que o documento é gravado — o frontend nunca envia um total, só quantidades e produtos. Isto elimina uma classe inteira de bugs (e de tentativas de manipulação) onde o valor mostrado ao cliente diverge do valor realmente cobrado.",
+      },
+      {
+        title: "Mesa como agregador de pedidos, não como pedido único",
+        content:
+          "Uma Table guarda uma lista de referências a Order em vez de um único pedido, porque na prática uma mesa raramente faz só um pedido — pede-se uma bebida, depois a comida, depois sobremesa. O ecrã \"Conta\" soma todos os pedidos ativos dessa mesa em tempo real, e só quando o pagamento é confirmado é que esses pedidos passam a finalizado e a mesa é libertada.",
+      },
+    ],
+    backend: [
+      {
+        title: "API REST em Node.js + Express",
+        content:
+          "A API expõe rotas por recurso — /api/products, /api/categories, /api/orders, /api/tables, /api/users, /api/admin/* — cada uma protegida por middlewares de autenticação JWT e verificação de papel (user vs admin) quando necessário. As rotas de administração vivem isoladas das rotas normais de pedidos, para que uma falha de autorização num painel nunca exponha operações sensíveis do outro.",
+      },
+      {
+        title: "Painel administrativo: receita, utilizadores e limpeza de histórico",
+        content:
+          "O AdminController calcula a receita apenas a partir de pedidos com status finalizado, agrupada por categoria de produto e por período (diário/mensal), nunca a partir de pedidos ainda em curso. A operação de limpar histórico só apaga pedidos finalizado — pedidos ativos, em preparação ou rascunhos ficam sempre intactos — e devolve ao administrador uma contagem exata do que foi removido antes de confirmar a ação.",
+      },
+      {
+        title: "Gestão de mesas e ciclo de vida do pedido",
+        content:
+          "O TableController garante que um número de mesa é único no sistema e mantém a lista de pedidos ativos associados a cada mesa. O fluxo de estado de um pedido (rascunho → preparando → pronto → entregue → finalizado) é validado a cada transição no orderController, para que a cozinha nunca marque como \"pronto\" um pedido que ainda está em rascunho no lado do cliente.",
+      },
+    ],
+    features: [
+      "Cardápio por categorias com disponibilidade de produtos em tempo real",
+      "Pedido por mesa com rascunho editável antes de enviar à cozinha",
+      "Painel da cozinha com pedidos organizados por estado (em preparação / prontos para entrega)",
+      "Gestão de mesas com conta consolidada e fecho de pagamento",
+      "Painel administrativo com utilizadores, produtos, pedidos e mesas",
+      "Relatórios de vendas por período e por categoria, com ticket médio",
+      "Limpeza controlada de histórico, restrita a pedidos já finalizados",
+    ],
+    challenges: [
+      {
+        title: "Impedir que um pedido \"desapareça\" entre a mesa e a cozinha",
+        content:
+          "Resolvido modelando o pedido como uma máquina de estados explícita em vez de um simples booleano \"enviado/não enviado\" — cada transição fica registada no próprio documento, e o painel da cozinha e o painel do cliente leem sempre o mesmo estado a partir da mesma fonte de verdade.",
+      },
+      {
+        title: "Garantir que fechar a conta de uma mesa nunca perde nem duplica um pedido",
+        content:
+          "Resolvido fazendo da Table apenas uma lista de referências a pedidos, nunca uma cópia dos seus valores — a conta é sempre recalculada a partir dos pedidos reais no momento em que é pedida, em vez de manter um total \"em cache\" na própria mesa que poderia divergir da realidade.",
+      },
+    ],
+    learnings: [
+      "Modelar o pedido como máquina de estados desde o início evita ter de \"remendar\" regras de transição mais tarde, quando já há dados reais em produção",
+      "Nunca confiar em nenhum valor monetário vindo do cliente — recalcular sempre no servidor, mesmo em operações internas simples como um pedido de mesa",
+    ],
+  },
 ];
 
 export function getProjectBySlug(slug: string): ProjectData | undefined {
